@@ -1,10 +1,10 @@
-# 蛇口市场门口大屏 · Shekou Market Digital Signage
+# 蛇口市场市场大屏 · Shekou Market Digital Signage
 
 ## 当前：后端接入版（2026-10-17）
 
 保留原HTML/CSS/原生JS页面与视觉，已接入[蛇口市场后端](https://github.com/zackwang2006-hue/MarketInformationalization)。接口与小程序实现见[后端PR #10](https://github.com/zackwang2006-hue/MarketInformationalization/pull/10)；该PR未合并前使用feat/entrance-screen分支。下面旧说明中的硬编码示例、目录和双击预览属于历史记录，不是当前数据流程。
 
-数据闭环：微信小程序上传真实门店照片/介绍 → 管理处审核 → 选择公开分类和名单并明确发布 → 门口屏约60秒读取快照。普通保存和审核通过均不等于上屏。没有发布时显示空态，不再使用原示例商户、OPEN状态或二楼示意布局。经营品类不是实时库存；无英文不自动翻译，无图明确缺图。
+数据闭环：微信小程序上传真实门店照片/介绍 → 管理处审核 → 选择公开分类和名单并明确发布 → 市场大屏约60秒读取快照。普通保存和审核通过均不等于上屏。没有发布时显示空态，不再使用原示例商户、OPEN状态或二楼示意布局。经营品类不是实时库存；无英文不自动翻译，无图明确缺图。
 
 需要Node 22.12+。仓库根运行：
 
@@ -140,3 +140,5 @@ git push -u origin main
 - 页面内所有商户、档口、价格类信息均为示例占位数据，正式上线前请替换为真实内容。
 - 地图中的「主入口」文案为占位，可按现场实际通道名称修改（`FLOOR1` 中的 `caption`）。
 - 代码无外部依赖、无网络请求，可离线运行。
+
+命名规范见 [市场大屏与档口小屏](SCREEN-NAMING.md)。本仓库只负责市场大屏；规范内 device、shared、server 等路径属于 MarketInformationalization 主项目。

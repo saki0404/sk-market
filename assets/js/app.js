@@ -1,19 +1,19 @@
 // Original layout: saki0404/sk-market @14a37ed. Runtime data comes only from published public snapshots.
 const config = window.ENTRANCE_CONFIG || {}, base = (config.apiBase || '').replace(/\/$/, ''), market = config.marketId || 'mkt_001';
-const endpoint = `${base}/api/public/markets/${encodeURIComponent(market)}/entrance`, cacheKey = endpoint;
+const marketScreenEndpoint = `${base}/api/public/markets/${encodeURIComponent(market)}/entrance`, marketScreenCacheKey = marketScreenEndpoint;
 const $ = id => document.getElementById(id);
 const colors = ['#0e9fc4','#22ac52','#e39200','#f0552f','#8348e0'];
-let data = { categories: [], stalls: [], floors: [], encyclopedia: [] }, active = 'scr-home', category = '', selected = '', floor = '', highlight = '', fingerprint = '', lastAction = Date.now(), syncing = false;
+let data = { categories: [], stalls: [], floors: [], encyclopedia: [] }, active = 'scr-home', category = '', selected = '', floor = '', highlight = '', marketScreenFingerprint = '', lastAction = Date.now(), marketScreenSyncing = false;
 let cached, releases = [];
 const text = (tag, value, cls = '') => { const el = document.createElement(tag); el.textContent = value || ''; if (cls) el.className = cls; return el; };
 const empty = (parent, message) => { parent.replaceChildren(text('p',message,'entrance-empty')); };
 function go(id) { active = id; document.querySelectorAll('.screen').forEach(el => el.classList.toggle('active', el.id === id)); $('backDock').style.display = id === 'scr-home' ? 'none' : 'block'; lastAction = Date.now(); }
-function goBack() { if(active === 'scr-detail') openCategory(category); else go(active === 'scr-list' ? 'scr-cat' : 'scr-home'); }
+function goBack() { if(active === 'scr-detail') openMarketScreenCategory(category); else go(active === 'scr-list' ? 'scr-cat' : 'scr-home'); }
 function img(asset) {
   const image = document.createElement('img'); image.alt = '已审核门店照片'; image.src = asset.localUrl; image.style.cssText = 'width:100%;height:100%;object-fit:contain';
   image.addEventListener('error', () => image.replaceWith(text('span','照片暂不可用'))); return image;
 }
-function openCategory(id) {
+function openMarketScreenCategory(id) {
   category = id; const c = data.categories.find(c => c.id === id); $('listTitle').replaceChildren(text('span',c?.name || '商户'),text('small',c?.nameEn));
   const box = $('shopScroll'); box.replaceChildren();
   for (const s of data.stalls.filter(s => s.categoryId === id)) box.append(shopCard(s));
@@ -24,10 +24,10 @@ function shopCard(s) {
   const thumb = text('div','','thumb'); if (s.photos[0]) thumb.append(img(s.photos[0])); else thumb.textContent = '暂无照片';
   const mid = text('div','','mid'), name = text('div',s.name,'nm'); name.append(text('small',s.nameEn));
   mid.append(name,text('div',s.intro,'intro'),text('div',s.introEn,'intro en')); row.append(thumb,mid,text('div',s.code,'loc'));
-  row.addEventListener('click',() => openShop(s.id)); return row;
+  row.addEventListener('click',() => openMarketScreenShop(s.id)); return row;
 }
-function openShop(id) {
-  const s = data.stalls.find(s => s.id === id); if (!s) { openCategory(category); return; } selected = id; category = s.categoryId;
+function openMarketScreenShop(id) {
+  const s = data.stalls.find(s => s.id === id); if (!s) { openMarketScreenCategory(category); return; } selected = id; category = s.categoryId;
   const left = text('div','','detail-left'), header = text('div','','detail-head'), name = text('div',s.name,'nm'); name.append(text('small',s.nameEn));
   header.append(name,text('div',s.code,'loc')); left.append(header);
   const photos = text('div','','photo-strip');
@@ -59,14 +59,14 @@ function render() {
   const old = active; $('brand').querySelector('.zh').textContent = data.market?.name || '蛇口市场';
   const feed = $('feedTrack'); feed.replaceChildren(...data.stalls.map(shopCard));
   if (!data.stalls.length) empty(feed,data.revision ? '暂无已发布商户资料' : '管理处尚未发布门口展示资料');
-  $('catGrid').replaceChildren(...data.categories.map((c,i) => { const b = text('button','','cat-card'); b.style.borderColor = colors[i % colors.length]; b.append(text('div',c.name,'nm'),text('div',c.nameEn,'en'),text('div',`${data.stalls.filter(s => s.categoryId === c.id).length} 家`,'cnt')); b.onclick = () => openCategory(c.id); return b; }));
+  $('catGrid').replaceChildren(...data.categories.map((c,i) => { const b = text('button','','cat-card'); b.style.borderColor = colors[i % colors.length]; b.append(text('div',c.name,'nm'),text('div',c.nameEn,'en'),text('div',`${data.stalls.filter(s => s.categoryId === c.id).length} 家`,'cnt')); b.onclick = () => openMarketScreenCategory(c.id); return b; }));
   const ticker = $('tickerTrack'); ticker.replaceChildren(...data.encyclopedia.map(k => { const card = text('div','','sea-card'), info = text('div','','info'); info.append(text('div',k.name,'nm'),text('small',k.nameEn),text('div','产地说明：'+k.origin,'line'),text('div','特点：'+k.features,'line'),text('div','做法：'+k.cooking,'line')); card.append(info); return card; }));
   if (!data.encyclopedia.length) empty(ticker,'海鲜图鉴资料待完善 · Knowledge directory pending');
-  renderMap(); if (old === 'scr-detail' && data.stalls.some(s => s.id === selected)) openShop(selected); else if (old === 'scr-detail') { openCategory(category); } else if (old === 'scr-list') openCategory(category); else go(old);
+  renderMap(); if (old === 'scr-detail' && data.stalls.some(s => s.id === selected)) openMarketScreenShop(selected); else if (old === 'scr-detail') { openMarketScreenCategory(category); } else if (old === 'scr-list') openMarketScreenCategory(category); else go(old);
 }
 function database() { return new Promise((resolve,reject) => { const req = indexedDB.open('market-entrance-v1',1); req.onupgradeneeded = () => req.result.createObjectStore('snapshots'); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); }
-async function cacheRead() { const db = await database(); try { return await new Promise((resolve,reject) => { const req = db.transaction('snapshots').objectStore('snapshots').get(cacheKey); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); } finally { db.close(); } }
-async function cacheWrite(value) { const db = await database(); try { await new Promise((resolve,reject) => { const tx = db.transaction('snapshots','readwrite'); tx.objectStore('snapshots').put(value,cacheKey); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error); }); } finally { db.close(); } }
+async function cacheRead() { const db = await database(); try { return await new Promise((resolve,reject) => { const req = db.transaction('snapshots').objectStore('snapshots').get(marketScreenCacheKey); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); } finally { db.close(); } }
+async function cacheWrite(value) { const db = await database(); try { await new Promise((resolve,reject) => { const tx = db.transaction('snapshots','readwrite'); tx.objectStore('snapshots').put(value,marketScreenCacheKey); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error); }); } finally { db.close(); } }
 async function hash(blob) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256',await blob.arrayBuffer()))].map(b => b.toString(16).padStart(2,'0')).join(''); }
 async function prepare(snapshot) {
   if (snapshot.schemaVersion !== '1.0' || snapshot.market?.id !== market || !Array.isArray(snapshot.stalls) || !Array.isArray(snapshot.categories) || !Array.isArray(snapshot.floors) || !Array.isArray(snapshot.encyclopedia)) throw new Error('展示数据格式或市场不匹配');
@@ -82,24 +82,24 @@ async function prepare(snapshot) {
 }
 function apply(value) {
   const next = JSON.stringify(value.snapshot,(key,v) => ['url','serverTime'].includes(key) ? undefined : v); cached = value;
-  if (next !== fingerprint) {
+  if (next !== marketScreenFingerprint) {
     const oldReleases = releases; releases = []; data = structuredClone(value.snapshot);
     for (const s of data.stalls) for (const a of s.photos) { a.localUrl = URL.createObjectURL(value.blobs[a.sha256]); releases.push(a.localUrl); }
-    render(); oldReleases.forEach(url => URL.revokeObjectURL(url)); fingerprint = next;
+    render(); oldReleases.forEach(url => URL.revokeObjectURL(url)); marketScreenFingerprint = next;
   }
 }
 function status(message) { $('syncStatus').textContent = message; }
 async function sync() {
-  if (syncing) return; syncing = true;
+  if (marketScreenSyncing) return; marketScreenSyncing = true;
   try {
-    const response = await fetch(endpoint,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(15000)}); const envelope = await response.json();
+    const response = await fetch(marketScreenEndpoint,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(15000)}); const envelope = await response.json();
     if (!response.ok || envelope.code !== 0) throw new Error(envelope.message || '读取失败');
     const next = await prepare(envelope.data); let persistent = true;
     try { await cacheWrite(next); } catch { persistent = false; }
     apply(next);
     status(`已发布版本 ${data.revision} · ${data.publishedAt ? new Date(data.publishedAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}) : '尚无发布'}${persistent ? '' : ' · 本机缓存不可用，离线重启可能无法恢复'}`);
   } catch(e) { status(cached ? `离线/同步失败 · 保留版本 ${cached.snapshot.revision}` : '未能连接，暂无缓存资料'); console.warn('Entrance sync:',e.message); }
-  finally { syncing = false; setTimeout(sync,60000); }
+  finally { marketScreenSyncing = false; setTimeout(sync,60000); }
 }
 // Native scroll areas support touch/mouse wheel; auto-scroll pauses while interacting.
 let pausedUntil = 0;
