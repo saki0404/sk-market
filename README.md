@@ -1,5 +1,36 @@
 # 蛇口市场门口大屏 · Shekou Market Digital Signage
 
+## 当前：后端接入版（2026-10-17）
+
+保留原HTML/CSS/原生JS页面与视觉，已接入[蛇口市场后端](https://github.com/zackwang2006-hue/MarketInformationalization)。接口与小程序实现见[后端PR #10](https://github.com/zackwang2006-hue/MarketInformationalization/pull/10)；该PR未合并前使用feat/entrance-screen分支。下面旧说明中的硬编码示例、目录和双击预览属于历史记录，不是当前数据流程。
+
+数据闭环：微信小程序上传真实门店照片/介绍 → 管理处审核 → 选择公开分类和名单并明确发布 → 门口屏约60秒读取快照。普通保存和审核通过均不等于上屏。没有发布时显示空态，不再使用原示例商户、OPEN状态或二楼示意布局。经营品类不是实时库存；无英文不自动翻译，无图明确缺图。
+
+需要Node 22.12+。仓库根运行：
+
+```powershell
+npm.cmd ci
+npm.cmd run dev
+# http://127.0.0.1:5188/
+npm.cmd run check
+npm.cmd run build
+npm.cmd audit
+```
+
+Vite仅用于开发代理/打包，没有Vue或新增运行库。开发与preview将/api代理到127.0.0.1:18088，需要已运行含新增接口的后端。config.js只存公开apiBase/marketId，默认同源/mkt_001，禁止写管理账号、密码或token。生产托管dist/并反代/api；跨域部署时同步后端CORS及APP_PUBLIC_BASE_URL，确保签名图片也可达。根config.js和sw.js是唯一源，构建时复制到dist，无重复public配置。
+
+已接入公开接口GET /api/public/markets/{marketId}/entrance，包含分类、商户、图片、楼层区域和图鉴。正式字段见[OpenAPI](https://github.com/zackwang2006-hue/MarketInformationalization/blob/feat/entrance-screen/docs/api/openapi.json)及[交接说明](https://github.com/zackwang2006-hue/MarketInformationalization/blob/feat/entrance-screen/docs/entrance-integration.md)。不会匿名读取私人素材库，也不会在网页登录管理账号。
+
+文字使用textContent/SVG DOM，不执行商户HTML。照片下载、哈希、解码及整份快照验证成功后才切换；失败保留旧版本。Service Worker/IndexedDB支持成功联网后的离线整页和Blob图片恢复，首次无缓存不能凭空恢复。HTTPS或localhost用于浏览器安全能力。两分钟无交互回首页，支持触摸/鼠标拖动/滚轮、减少动效和横竖屏详情。
+
+源码也可经HTTP静态服务运行，但没有开发代理，需另设同源反代或真实API地址。支持子目录资源和Service Worker路径。GitHub Pages只托管静态页面，必须另配真实HTTPS后端及图片域名，不能填写电脑localhost；推送代码不代表已完成现场部署。不要用file://作为正式运行方式。
+
+根目录是唯一维护源，shekou-market-screen/index.html只保留旧地址跳转。当前没有市场级设备配对/心跳/APPLIED上报，不能冒充店内屏；电视现场、触摸和断电仍待验收。停用资料联网后可过滤，离线可能仍保留原有效快照。
+
+---
+
+## 以下为初版历史介绍
+
 市场门口竖屏/横屏大屏的交互展示页面，单页纯前端（HTML + CSS + 原生 JS），无构建、无依赖、开箱即用。
 
 - 主屏比例建议：**1920 × 1080（16:9）全屏运行**

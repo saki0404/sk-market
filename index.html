@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐟</text></svg>">
 <title>蛇口市场大屏 | Shekou Market</title>
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/integration.css">
 </head>
 <body>
 
@@ -33,22 +34,22 @@
         <div class="feed-head">
           <div class="t">今日商户 · Today's Stalls<small>可拖动查看 DRAG TO BROWSE</small></div>
           <div class="drag-hint">✋ 拖一拖 · Drag me</div>
-          <div class="live"><span class="dot"></span>营业中 OPEN</div>
+          <div class="live" id="syncStatus" role="status">正在读取已发布资料</div>
         </div>
         <div class="feed-viewport"><div id="feedTrack"></div></div>
       </div>
       <div class="home-side">
         <div class="guide-label">— 请选择服务 · Please Choose —</div>
-        <div class="nav-card" onclick="go('scr-map')">
+        <button type="button" class="nav-card" onclick="go('scr-map')">
           <div class="ico">🗺️</div>
           <div class="nm">小地图</div>
           <div class="en">MARKET MAP</div>
-        </div>
-        <div class="nav-card" onclick="go('scr-cat')">
+        </button>
+        <button type="button" class="nav-card" onclick="go('scr-cat')">
           <div class="ico">🏪</div>
           <div class="nm">摊位信息</div>
           <div class="en">STALL INFO</div>
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -111,7 +112,7 @@
       <div class="map-legendbar">
         <div class="lg-title">业态图例 <small>（点击可高亮同类区域 · Tap a legend to highlight）</small></div>
         <div class="lg-chips" id="lgChips"></div>
-        <div class="lg-note">虚线斜纹为楼梯 / 消防通道 · 灰底为公共区域 · Hatched = stairs &amp; fire passages</div>
+        <div class="lg-note">区域用途与实际位置以管理处发布的导览资料为准；示意布局会单独标注。</div>
       </div>
     </div>
   </div>
@@ -128,6 +129,7 @@
   <div id="tickerTrack"></div>
 </div>
 
-<script src="assets/js/app.js"></script>
+<script src="./config.js"></script>
+<script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
