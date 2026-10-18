@@ -10,7 +10,7 @@ function button(label,callback,cls='quiet-button',symbol){const b=el('button',''
 function empty(title,description,symbol='storefront'){const box=el('div','','empty-state');box.append(icon(symbol),el('h3',title),el('p',description));return box;}
 let data={categories:[],stalls:[],floors:[],encyclopedia:[]},view='home',category='',selected='',floor='',zone='',query='',lastAction=Date.now(),client,loadState='loading',detailReturn='shops';
 const isPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('preview')==='design';
-const ROTATION_MS=5000;
+const ROTATION_MS=3000;
 const spotlightMerchants=new Map();
 let rotationTimer, rotating=false;
 function featureCard(group,stall){
