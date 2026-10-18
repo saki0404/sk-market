@@ -1,3 +1,4 @@
+import {spotlightGroups,currentMerchant,nextMerchant} from './spotlight.js';
 import {createMarketClient} from './market-data.js';
 const iconFiles=import.meta.glob('../icons/*.svg',{eager:true,query:'?url',import:'default'});
 const artFiles=import.meta.glob('../images/icon-*.png',{eager:true,query:'?url',import:'default'});
@@ -7,29 +8,47 @@ const el=(tag,value='',className='')=>{const node=document.createElement(tag);no
 function icon(name,extra=''){const img=el('img','','icon '+extra);const art=artFiles['../images/icon-'+artNames[name]+'.png'];if(art)img.classList.add('art-icon');img.src=art||iconFiles[`../icons/${name}.svg`]||iconFiles['../icons/storefront.svg'];img.alt='';img.setAttribute('aria-hidden','true');return img;}
 function button(label,callback,cls='quiet-button',symbol){const b=el('button','',cls);b.type='button';if(symbol)b.append(icon(symbol));b.append(el('span',label));b.addEventListener('click',callback);return b;}
 function empty(title,description,symbol='storefront'){const box=el('div','','empty-state');box.append(icon(symbol),el('h3',title),el('p',description));return box;}
-let data={categories:[],stalls:[],floors:[],encyclopedia:[]},view='home',category='',selected='',floor='',zone='',query='',offset=0,lastAction=Date.now(),client,loadState='loading',detailReturn='shops';
+let data={categories:[],stalls:[],floors:[],encyclopedia:[]},view='home',category='',selected='',floor='',zone='',query='',lastAction=Date.now(),client,loadState='loading',detailReturn='shops';
 const isPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('preview')==='design';
 const ROTATION_MS=9000;
+const spotlightMerchants=new Map();
 let rotationTimer, rotating=false;
+function featureCard(group,stall){
+ const node=card(stall,true);
+ node.dataset.categoryId=group.category.id;
+ const label=node.querySelector('.sample-tag')||el('span','','sample-tag');
+ label.textContent=group.category.name+(isPreview?' · 示意':'');
+ if(!label.isConnected)node.append(label);
+ return node;
+}
 function scheduleRotation(){
  clearTimeout(rotationTimer);
- if(view==='home'&&data.stalls.length>1&&!document.hidden)rotationTimer=setTimeout(()=>rotateSpotlight(),ROTATION_MS);
+ if(view==='home'&&spotlightGroups(data).some(group=>group.stalls.length>1)&&!document.hidden)
+  rotationTimer=setTimeout(()=>rotateSpotlight(),ROTATION_MS);
 }
 async function rotateSpotlight(direction=1,automatic=true){
  const features=$('main').querySelector('.spotlight');
  if(!features||rotating)return;
- // Let someone read, touch or keyboard-select a card without moving it away.
  if(automatic&&(features.matches(':hover')||features.contains(document.activeElement))){scheduleRotation();return;}
  clearTimeout(rotationTimer);rotating=true;
+ const snapshot=data;
+ const changes=spotlightGroups(data).filter(group=>group.stalls.length>1).map(group=>{
+  const old=[...features.children].find(node=>node.dataset.categoryId===group.category.id);
+  const stall=nextMerchant(group,spotlightMerchants.get(group.category.id),direction);
+  return {group,old,stall,next:featureCard(group,stall)};
+ }).filter(change=>change.old);
  const animate=!matchMedia('(prefers-reduced-motion: reduce)').matches;
  try{
-  if(animate)await features.animate([{opacity:1},{opacity:0}],{duration:220,easing:'ease-in',fill:'forwards'}).finished;
-  if(!features.isConnected||view!=='home')return;
-  const step=data.stalls.length>3?3:1;
-  offset=(offset+direction*step+data.stalls.length)%data.stalls.length;
-  features.replaceChildren(...Array.from({length:Math.min(3,data.stalls.length)},(_,i)=>card(data.stalls[(offset+i)%data.stalls.length],true)));
-  features.getAnimations().forEach(animation=>animation.cancel());
-  if(animate)await features.animate([{opacity:0},{opacity:1}],{duration:360,easing:'ease-out'}).finished;
+  // Decode the next photos before fading the currently readable merchant away.
+  await Promise.all(changes.map(({next})=>next.querySelector('.shop-photo')?.decode().catch(()=>{})));
+  if(!features.isConnected||view!=='home'||data!==snapshot)return;
+  if(animate)await Promise.all(changes.map(({old})=>old.animate([{opacity:1},{opacity:0}],{duration:220,easing:'ease-in',fill:'forwards'}).finished));
+  if(!features.isConnected||view!=='home'||data!==snapshot)return;
+  for(const {group,old,stall,next} of changes){
+   spotlightMerchants.set(group.category.id,stall.id);
+   old.replaceWith(next);
+  }
+  if(animate)await Promise.all(changes.map(({next})=>next.animate([{opacity:0},{opacity:1}],{duration:360,easing:'ease-out'}).finished));
  }finally{rotating=false;scheduleRotation();}
 }
 document.addEventListener('visibilitychange',scheduleRotation);
@@ -40,7 +59,18 @@ function renderBar(){const bar=$('categoryBar');bar.replaceChildren();if(!data.c
 function card(stall,feature=false){const b=el('button','',feature?'shop-feature':'shop-card');b.type='button';b.setAttribute('aria-label',`查看${stall.name}详情`);b.append(photo(stall.photos[0],stall.name));const copy=el('div','',feature?'feature-copy':'card-copy');copy.append(el('h3',stall.name));if(!feature&&stall.code)copy.append(el('span',stall.code,'stall-code'));copy.append(el('p',stall.intro||'暂无店铺介绍'));if(feature)copy.append(icon('arrow-right'));b.append(copy);if(isPreview&&feature)b.append(el('span','示意','sample-tag'));b.onclick=()=>navigate('detail',{selected:stall.id});return b;}
 function action(title,subtitle,symbol,callback,primary=false){const b=el('button','','wayfinding'+(primary?' primary':''));b.type='button';b.append(icon(symbol));const copy=el('span','','action-copy');copy.append(el('span',title,'action-title'),el('span',subtitle,'action-sub'));b.append(copy,icon('arrow-right','arrow'));b.onclick=callback;return b;}
 function home(){const layout=el('div','','home-layout'),container=el('div','','spotlight-container'),features=el('div','','spotlight');
- if(data.stalls.length){offset=Math.min(offset,Math.max(0,data.stalls.length-1));for(let i=0;i<Math.min(3,data.stalls.length);i++)features.append(card(data.stalls[(offset+i)%data.stalls.length],true));container.append(features);if(data.stalls.length>1){const pager=el('div','','pager');for(const [label,dir,symbol] of [['上一组',-1,'caret-left'],['下一组',1,'caret-right']]){const b=button('',()=>rotateSpotlight(dir,false),'quiet-button',symbol);b.setAttribute('aria-label',label);pager.append(b);}container.append(pager);}}
+ const groups=spotlightGroups(data);
+ if(groups.length){
+  for(const group of groups){const stall=currentMerchant(group,spotlightMerchants.get(group.category.id));spotlightMerchants.set(group.category.id,stall.id);features.append(featureCard(group,stall));}
+  container.append(features);
+  if(groups.some(group=>group.stalls.length>1)){
+   const pager=el('div','','pager');
+   for(const [label,dir,symbol] of [['上一批商户',-1,'caret-left'],['下一批商户',1,'caret-right']]){
+    const b=button('',()=>rotateSpotlight(dir,false),'quiet-button',symbol);b.setAttribute('aria-label',label);pager.append(b);
+   }
+   container.append(pager);
+  }
+ }
  else{const title=loadState==='loading'?'正在准备市场资料':loadState==='offline'?'市场资料暂未连接':'期待认识这里的每一家';const hint=loadState==='offline'?'暂时无法获取已发布资料，请稍后再试。':'管理处发布商户资料后，门店介绍和照片会在这里与你见面。';container.append(empty(title,hint));}
  const welcome=el('section','','welcome'),heading=el('div');heading.append(el('h2','逛市场，从这里开始'),el('p','新鲜好物 · 便捷导览 · 发现更多','subtitle'));const actions=el('div','','welcome-actions');actions.append(action('找商户','浏览全部商户','storefront',()=>navigate('shops',{category:''}),true),action('看地图','查看市场区域导览','map-trifold',()=>navigate('map')));welcome.append(heading,actions);if(data.encyclopedia.length)welcome.append(button('逛逛食材图鉴',()=>navigate('knowledge'),'secondary-link'));layout.append(container,welcome);return layout;}
 function section(title,back=()=>navigate('home')){const root=el('section','','section-view'),head=el('div','','section-heading');head.append(button('返回',back,'back-button','arrow-left'),el('h2',title));root.append(head);return {root,head};}
