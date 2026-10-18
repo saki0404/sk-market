@@ -167,8 +167,8 @@ body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;op
 .category-item.selected{background:rgba(93,112,82,.14)}
 .category-item .icon{filter:brightness(0) invert(46%) sepia(26%) saturate(700%) hue-rotate(70deg) brightness(.92);opacity:.9}
 .category-placeholder{color:var(--muted)}
-.wayfinding{background:var(--card);border:1px solid #DED8CF99;border-radius:2rem 2rem 2rem 3.5rem;box-shadow:0 4px 20px -2px rgba(93,112,82,.15);transition:transform .3s ease,box-shadow .3s ease}
-.wayfinding.primary{background:#F3F4F1;border-color:#5D705266;border-radius:3.5rem 2rem 2rem 2rem}
+.wayfinding{background:var(--card);border:1px solid #DED8CF99;border-radius:2rem;box-shadow:0 4px 20px -2px rgba(93,112,82,.15);transition:transform .3s ease,box-shadow .3s ease}
+.wayfinding.primary{background:#F3F4F1;border-color:#5D705266}
 .wayfinding:hover{transform:translateY(-4px);box-shadow:0 20px 40px -10px rgba(93,112,82,.25)}
 .wayfinding .action-sub{color:var(--muted)}
 .secondary-link{color:#5D7052}
@@ -208,3 +208,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .feature-copy .icon{filter:brightness(0) invert(1)}
 .wayfinding .arrow{color:#347B45}
 .back-button .icon{color:#347B45}
+
+/* ===== 分类图标：薄荷 3D 杂货图标（用户 2026-10-19 提供，已切分为透明底 PNG）=====
+   保留原生彩色，取消 Organic 层的苔藓绿染色 */
+.category-item .icon.art-icon{filter:none;opacity:1}
