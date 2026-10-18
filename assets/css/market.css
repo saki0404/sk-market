@@ -202,3 +202,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .preview-notice{background:#5D7052;border-radius:0 0 1rem 1rem}
 /* 16:9 及更宽的桌面视口：约束焦点图行高，避免照片自然高度溢出遮挡分类栏 */
 @media (min-aspect-ratio:5/4){.home-layout{grid-template-rows:minmax(0,1fr)}.spotlight,.shop-feature{min-height:0}.welcome{padding-top:4vh}.buddy-peek{width:21%;max-height:19vh;bottom:-1.6vh}}
+
+/* ===== 箭头统一样式：实心箭头 · 竹绿 #347B45 (2026-10-18) =====
+   全站箭头（首页大按钮 / 返回按钮）统一竹绿；焦点图商户示意卡因底部为深灰压条，箭头改用白色 */
+.feature-copy .icon{filter:brightness(0) invert(1)}
+.wayfinding .arrow{color:#347B45}
+.back-button .icon{color:#347B45}
