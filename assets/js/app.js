@@ -70,7 +70,34 @@ function home(){const layout=el('div','','home-layout'),container=el('div','','s
 function section(title,back=()=>navigate('home')){const root=el('section','','section-view'),head=el('div','','section-heading');head.append(button('返回',back,'back-button','arrow-left'),el('h2',title));root.append(head);return {root,head};}
 function filteredStalls(){const term=query.trim().toLocaleLowerCase();return data.stalls.filter(s=>(!category||s.categoryId===category)&&(!term||[s.name,s.nameEn,s.code,s.intro,...s.goods].some(v=>v.toLocaleLowerCase().includes(term))));}
 function shopList(){const title=data.categories.find(c=>c.id===category)?.name||'全部商户';const {root,head}=section(title);if(category)head.append(button('全部商户',()=>navigate('shops',{category:''})));const search=el('label','','search');search.append(icon('magnifying-glass'));const input=el('input');input.type='search';input.placeholder='搜索店名、编号或品类';input.setAttribute('aria-label','搜索店名、编号或品类');input.value=query;search.append(input);head.append(search);const grid=el('div','','shop-grid');function results(){grid.replaceChildren();const rows=filteredStalls();if(rows.length)grid.append(...rows.map(s=>card(s)));else grid.append(empty(query?'没有找到相关商户':'暂无已发布商户',query?'试试其他店名、摊位编号或经营品类。':'该分类有新的公开资料后，会显示在这里。'));}input.oninput=()=>{query=input.value;lastAction=Date.now();results();};results();root.append(grid);return root;}
-function details(){const s=data.stalls.find(x=>x.id===selected);if(!s){view='shops';return shopList();}const {root,head}=section(s.name,()=>navigate(detailReturn));if(s.code)head.append(el('span',s.code,'stall-code'));const content=el('div','','detail-content'),photos=el('div','','detail-photos');for(let i=0;i<2;i++)photos.append(photo(s.photos[i],s.name));const copy=el('div','','detail-text');if(s.nameEn)copy.append(el('p',s.nameEn,'en'));copy.append(el('h3','认识这家店'),el('p',s.intro||'暂无已发布介绍'));if(s.introEn)copy.append(el('p',s.introEn,'en'));copy.append(el('h3','经营品类'));const goods=el('div','','goods');goods.append(...(s.goods.length?s.goods:['暂无已发布品类']).map(g=>el('span',g)));copy.append(goods,el('h3','商户寄语'),el('p',s.message||'暂无寄语'));if(s.messageEn)copy.append(el('p',s.messageEn,'en'));const f=data.floors.find(x=>x.id===s.floorId),z=f?.zones.find(x=>x.id===s.zoneId);if(f)copy.append(button(`查看位置 · ${f.name}${z?' / '+z.title:''}`,()=>{floor=f.id;zone=z?.id||'';navigate('map');},'quiet-button','map-trifold'));content.append(photos,copy);root.append(content);return root;}
+function details(){
+ const s=data.stalls.find(x=>x.id===selected);
+ if(!s){view='shops';return shopList();}
+ const {root,head}=section(s.name,()=>navigate(detailReturn));
+ if(s.code)head.append(el('span',s.code,'stall-code'));
+ const content=el('div','','detail-content'),photos=el('div','','detail-photos');
+ const publishedPhotos=s.photos.slice(0,2);
+ photos.dataset.count=String(Math.max(1,publishedPhotos.length));
+ if(publishedPhotos.length)for(const asset of publishedPhotos)photos.append(photo(asset,s.name));
+ else photos.append(photo(null,s.name));
+ const copy=el('div','','detail-text');
+ const intro=el('section','','detail-block detail-intro');
+ if(s.nameEn)intro.append(el('p',s.nameEn,'en'));
+ intro.append(el('h3','认识这家店'),el('p',s.intro||'暂无已发布介绍'));
+ if(s.introEn)intro.append(el('p',s.introEn,'en'));
+ const business=el('section','','detail-block');
+ business.append(el('h3','经营品类'));
+ const goods=el('div','','goods');
+ goods.append(...(s.goods.length?s.goods:['暂无已发布品类']).map(g=>el('span',g)));
+ business.append(goods);
+ const message=el('section','','detail-block');
+ message.append(el('h3','商户寄语'),el('p',s.message||'暂无寄语'));
+ if(s.messageEn)message.append(el('p',s.messageEn,'en'));
+ copy.append(intro,business,message);
+ const f=data.floors.find(x=>x.id===s.floorId),z=f?.zones.find(x=>x.id===s.zoneId);
+ if(f){const locationButton=button(`查看位置 · ${f.name}${z?' / '+z.title:''}`,()=>{floor=f.id;zone=z?.id||'';navigate('map');},'quiet-button','map-trifold');locationButton.classList.add('detail-location');copy.append(locationButton);}
+ content.append(photos,copy);root.append(content);return root;
+}
 function marketMap(){const {root,head}=section('市场导览');if(!data.floors.length){root.append(empty('市场地图待完善','管理处发布市场布局后，可在这里查看楼层与区域信息。','map-trifold'));return root;}const f=data.floors.find(x=>x.id===floor)||data.floors[0];floor=f.id;const layout=el('div','','map-layout'),area=el('div','','map-area'),tabs=el('div','','floor-tabs');for(const item of data.floors)tabs.append(button(item.name,()=>navigate('map',{floor:item.id}),'quiet-button'+(floor===item.id?' active':'')));const canvas=el('div','','map-canvas'),board=el('div','','map-board');board.style.setProperty('--ratio',`${f.width}/${f.height}`);const colors=['#b3dded','#bfe4c9','#f1c5b2','#e9ddb2','#d9cee9'];for(const z of f.zones){const b=button(z.title,()=>navigate('map',{zone:z.id}),'zone'+(zone===z.id?' selected':''));b.setAttribute('aria-pressed',String(zone===z.id));for(const [key,value]of Object.entries({x:100*z.x/f.width,y:100*z.y/f.height,w:100*z.width/f.width,h:100*z.height/f.height}))b.style.setProperty('--'+key,value+'%');b.style.setProperty('--zone-color',colors[Math.max(0,data.categories.findIndex(c=>c.id===z.categoryId))%colors.length]);board.append(b);}canvas.append(board);area.append(tabs,canvas,el('p',f.schematic?'示意布局 · 位置以现场指引为准':'已发布市场布局','map-caption'));const info=el('aside','','zone-info'),z=f.zones.find(x=>x.id===zone);if(z){info.append(el('h3',z.title));if(z.titleEn)info.append(el('p',z.titleEn,'en'));info.append(el('p',z.description||'暂无区域说明'));if(z.descriptionEn)info.append(el('p',z.descriptionEn,'en'));const rows=data.stalls.filter(s=>s.floorId===f.id&&s.zoneId===z.id);for(const s of rows)info.append(button(s.name,()=>navigate('detail',{selected:s.id})));if(!rows.length)info.append(el('p','本区域暂无已发布商户资料'));}else info.append(el('h3','轻触地图上的区域'),el('p','了解区域信息，找到想逛的店铺。'));layout.append(area,info);root.append(layout);return root;}
 function knowledge(){const {root}=section('食材图鉴'),list=el('div','','knowledge-list');for(const k of data.encyclopedia){const item=el('article','','knowledge-item');item.append(el('h3',k.name));if(k.nameEn)item.append(el('p',k.nameEn,'en'));for(const [label,key]of [['产地','origin'],['特点','features'],['推荐做法','cooking']])item.append(el('h4',label),el('p',k[key]||'暂无资料'));list.append(item);}if(!list.children.length)list.append(empty('图鉴资料待完善','发布后将在这里展示食材知识。','books'));root.append(list);return root;}
 function render(){clearTimeout(rotationTimer);const active=document.activeElement;const searchFocused=active?.tagName==='INPUT';const cursor=searchFocused?active.selectionStart:null;$('marketName').textContent=data.market?.name||'蛇口市场';$('main').replaceChildren(({home,shops:shopList,detail:details,map:marketMap,knowledge}[view]||home)());renderBar();if(searchFocused&&view==='shops'){const input=$('main').querySelector('input');input.focus();if(input.type==='text')input.setSelectionRange(cursor,cursor);}scheduleRotation();}

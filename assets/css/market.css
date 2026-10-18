@@ -87,12 +87,12 @@
  .shop-card p{font-size:1.5vw;margin:.5vh 0}
  .stall-code{font-size:1.3vw;padding:.3vh .6vw}
  .detail-content{display:flex;flex-direction:column;gap:2vh;max-height:none;overflow:auto}
- .detail-photos{height:26vh;min-height:0;flex-shrink:0;gap:1.2vw}
+ .detail-photos{height:22vh;min-height:0;flex:0 0 22vh;gap:1.2vw}
  .detail-photos .shop-photo{height:100%;max-height:none;border-radius:1.5vw}
  .detail-photos .photo-empty{min-height:0;border-radius:1.5vw}
- .detail-text{font-size:1.9vw;line-height:1.7;padding:0 .6vw}
- .detail-text h3{font-size:2.3vw;margin:0 0 .7vh}
- .detail-text p{margin:0 0 1.5vh}
+ .detail-text{font-size:2.1vw;line-height:1.75;padding:2vw}
+ .detail-text h3{font-size:2.5vw;margin:0 0 1vh}
+ .detail-text p{margin:0 0 1vh}
  .goods{gap:.7vw;margin-bottom:1.5vh}
  .goods span{padding:.3vh .8vw}
  .map-layout{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,18vh);gap:1.2vh}
@@ -112,4 +112,33 @@
  .empty-state p{font-size:1.8vw}
  .empty-state .icon,.empty-state .art-icon{width:7vw;height:7vw}
  .photo-empty{font-size:1.5vw}
+}
+
+/* Constrain the grid track itself: intrinsic photo height must not escape its row. */
+.detail-photos{
+ grid-template-rows:minmax(0,1fr);
+ min-width:0;overflow:hidden;isolation:isolate;
+}
+.detail-photos[data-count="1"]{grid-template-columns:minmax(0,1fr)}
+.detail-photos>.shop-photo,.detail-photos>.photo-empty{
+ display:block;min-width:0;min-height:0;max-width:100%;max-height:100%;
+ width:100%;height:100%;overflow:hidden;
+}
+.detail-photos>.photo-empty{display:flex}
+.detail-text{
+ position:relative;min-width:0;flex-shrink:0;
+ background:#fff;color:#123f35;border:1px solid #c9e2d5;
+ border-radius:22px;padding:24px;
+ display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-content:start;
+}
+.detail-block{min-width:0}
+.detail-block+.detail-block{border-top:1px solid #dcebe2;padding-top:18px}
+.detail-block h3{color:#07543e}
+.detail-block p:last-child,.detail-block .goods{margin-bottom:0}
+.detail-location{justify-self:start;max-width:100%;white-space:normal;text-align:left}
+@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+ .detail-content{gap:1.8vh;padding:.4vw}
+ .detail-text{padding:2vw;border-radius:1.5vw;gap:1.8vh}
+ .detail-block+.detail-block{padding-top:1.5vh}
+ .detail-photos .photo-empty{min-height:0}
 }
