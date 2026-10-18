@@ -61,13 +61,13 @@ export function createMarketClient({apiBase='',marketId,onData,onStatus,fetcher=
       const envelope=await response.json(); if(!response.ok||envelope.code!==0)throw new Error('市场资料暂时无法读取');
       const next=await prepare(envelope.data,previous?.blobs); if(stopped)return;
       let persisted=true; try{await cache('readwrite',endpoint,next);}catch{persisted=false;}
-      apply(next); onStatus(next.snapshot.revision?`已更新 · 版本 ${next.snapshot.revision}${persisted?'':' · 本机缓存不可用'}`:'暂无已发布资料','ready');
-    } catch(error) { if(!stopped)onStatus(previous?`暂时离线 · 显示缓存版本 ${previous.snapshot.revision}`:'暂时无法连接 · 尚无缓存资料','offline'); }
+      apply(next); onStatus(next.snapshot.revision?`已更新 Updated · 版本 v${next.snapshot.revision}${persisted?'':' · 本机缓存不可用 no local cache'}`:'暂无已发布资料 Nothing published yet','ready');
+    } catch(error) { if(!stopped)onStatus(previous?`暂时离线 Offline · 显示缓存版本 v${previous.snapshot.revision}`:'暂时无法连接 Connection failed · 尚无缓存资料 no cached info','offline'); }
     finally{syncing=false;if(!stopped)timer=setTimeout(sync,60000);}
   }
   return {
     async start(){
-      try {const saved=await cache('readonly',endpoint);if(saved){validateSnapshot(saved.snapshot,marketId);for(const row of saved.snapshot.stalls)for(const a of row.photos){const blob=saved.blobs?.[a.sha256];if(!blob||await hash(blob)!==a.sha256)throw new Error('缓存图片校验失败');}apply(saved);onStatus(`缓存版本 ${saved.snapshot.revision} · 正在更新`,'cached');}}catch{/* Network can repair missing or invalid cache. */}
+      try {const saved=await cache('readonly',endpoint);if(saved){validateSnapshot(saved.snapshot,marketId);for(const row of saved.snapshot.stalls)for(const a of row.photos){const blob=saved.blobs?.[a.sha256];if(!blob||await hash(blob)!==a.sha256)throw new Error('缓存图片校验失败');}apply(saved);onStatus(`缓存版本 v${saved.snapshot.revision} Cached · 正在更新 Updating`,'cached');}}catch{/* Network can repair missing or invalid cache. */}
       await sync();
     }, refresh:sync,
     stop(){stopped=true;clearTimeout(timer);controller?.abort();urls.forEach(u=>URL.revokeObjectURL(u));}
