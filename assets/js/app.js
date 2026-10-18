@@ -10,7 +10,7 @@ function button(label,callback,cls='quiet-button',symbol){const b=el('button',''
 function empty(title,description,symbol='storefront'){const box=el('div','','empty-state');box.append(icon(symbol),el('h3',title),el('p',description));return box;}
 let data={categories:[],stalls:[],floors:[],encyclopedia:[]},view='home',category='',selected='',floor='',zone='',query='',lastAction=Date.now(),client,loadState='loading',detailReturn='shops';
 const isPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('preview')==='design';
-const ROTATION_MS=9000;
+const ROTATION_MS=5000;
 const spotlightMerchants=new Map();
 let rotationTimer, rotating=false;
 function featureCard(group,stall){
@@ -26,15 +26,15 @@ function scheduleRotation(){
  if(view==='home'&&spotlightGroups(data).some(group=>group.stalls.length>1)&&!document.hidden)
   rotationTimer=setTimeout(()=>rotateSpotlight(),ROTATION_MS);
 }
-async function rotateSpotlight(direction=1,automatic=true){
+async function rotateSpotlight(){
  const features=$('main').querySelector('.spotlight');
  if(!features||rotating)return;
- if(automatic&&(features.matches(':hover')||features.contains(document.activeElement))){scheduleRotation();return;}
+ if(features.matches(':hover')||features.contains(document.activeElement)){scheduleRotation();return;}
  clearTimeout(rotationTimer);rotating=true;
  const snapshot=data;
  const changes=spotlightGroups(data).filter(group=>group.stalls.length>1).map(group=>{
   const old=[...features.children].find(node=>node.dataset.categoryId===group.category.id);
-  const stall=nextMerchant(group,spotlightMerchants.get(group.category.id),direction);
+  const stall=nextMerchant(group,spotlightMerchants.get(group.category.id));
   return {group,old,stall,next:featureCard(group,stall)};
  }).filter(change=>change.old);
  const animate=!matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -63,13 +63,7 @@ function home(){const layout=el('div','','home-layout'),container=el('div','','s
  if(groups.length){
   for(const group of groups){const stall=currentMerchant(group,spotlightMerchants.get(group.category.id));spotlightMerchants.set(group.category.id,stall.id);features.append(featureCard(group,stall));}
   container.append(features);
-  if(groups.some(group=>group.stalls.length>1)){
-   const pager=el('div','','pager');
-   for(const [label,dir,symbol] of [['上一批商户',-1,'caret-left'],['下一批商户',1,'caret-right']]){
-    const b=button('',()=>rotateSpotlight(dir,false),'quiet-button',symbol);b.setAttribute('aria-label',label);pager.append(b);
-   }
-   container.append(pager);
-  }
+
  }
  else{const title=loadState==='loading'?'正在准备市场资料':loadState==='offline'?'市场资料暂未连接':'期待认识这里的每一家';const hint=loadState==='offline'?'暂时无法获取已发布资料，请稍后再试。':'管理处发布商户资料后，门店介绍和照片会在这里与你见面。';container.append(empty(title,hint));}
  const welcome=el('section','','welcome'),heading=el('div');heading.append(el('h2','逛市场，从这里开始'),el('p','新鲜好物 · 便捷导览 · 发现更多','subtitle'));const actions=el('div','','welcome-actions');actions.append(action('找商户','浏览全部商户','storefront',()=>navigate('shops',{category:''}),true),action('看地图','查看市场区域导览','map-trifold',()=>navigate('map')));welcome.append(heading,actions);if(data.encyclopedia.length)welcome.append(button('逛逛食材图鉴',()=>navigate('knowledge'),'secondary-link'));layout.append(container,welcome);return layout;}
