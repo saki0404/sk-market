@@ -1,153 +1,34 @@
-// Original layout: saki0404/sk-market @14a37ed. Runtime data comes only from published public snapshots.
-const config = window.ENTRANCE_CONFIG || {}, base = (config.apiBase || '').replace(/\/$/, ''), market = config.marketId || 'mkt_001';
-const marketScreenEndpoint = `${base}/api/public/markets/${encodeURIComponent(market)}/entrance`, marketScreenCacheKey = marketScreenEndpoint;
-const $ = id => document.getElementById(id);
-const colors = ['#0e9fc4','#22ac52','#e39200','#f0552f','#8348e0'];
-let data = { categories: [], stalls: [], floors: [], encyclopedia: [] }, active = 'scr-home', category = '', selected = '', floor = '', highlight = '', marketScreenFingerprint = '', lastAction = Date.now(), marketScreenSyncing = false;
-let cached, releases = [];
-const text = (tag, value, cls = '') => { const el = document.createElement(tag); el.textContent = value || ''; if (cls) el.className = cls; return el; };
-const empty = (parent, message) => { parent.replaceChildren(text('p',message,'entrance-empty')); };
-function go(id) { active = id; document.querySelectorAll('.screen').forEach(el => el.classList.toggle('active', el.id === id)); $('backDock').style.display = id === 'scr-home' ? 'none' : 'block'; lastAction = Date.now(); }
-function goBack() { if(active === 'scr-detail') openMarketScreenCategory(category); else go(active === 'scr-list' ? 'scr-cat' : 'scr-home'); }
-function img(asset) {
-  const image = document.createElement('img'); image.alt = '已审核门店照片'; image.src = asset.localUrl; image.style.cssText = 'width:100%;height:100%;object-fit:contain';
-  image.addEventListener('error', () => image.replaceWith(text('span','照片暂不可用'))); return image;
-}
-function openMarketScreenCategory(id) {
-  category = id; const c = data.categories.find(c => c.id === id); $('listTitle').replaceChildren(text('span',c?.name || '商户'),text('small',c?.nameEn));
-  const box = $('shopScroll'); box.replaceChildren();
-  for (const s of data.stalls.filter(s => s.categoryId === id)) box.append(shopCard(s));
-  if (!box.children.length) empty(box,'暂无已发布商户'); go('scr-list');
-}
-function shopCard(s) {
-  const row = text('button','','shop-row'); row.type = 'button'; row.dataset.stallId = s.id;
-  const thumb = text('div','','thumb'); if (s.photos[0]) thumb.append(img(s.photos[0])); else thumb.textContent = '暂无照片';
-  const mid = text('div','','mid'), name = text('div',s.name,'nm'); name.append(text('small',s.nameEn));
-  mid.append(name,text('div',s.intro,'intro'),text('div',s.introEn,'intro en')); row.append(thumb,mid,text('div',s.code,'loc'));
-  row.addEventListener('click',() => openMarketScreenShop(s.id)); return row;
-}
-function openMarketScreenShop(id) {
-  const s = data.stalls.find(s => s.id === id); if (!s) { openMarketScreenCategory(category); return; } selected = id; category = s.categoryId;
-  const left = text('div','','detail-left'), header = text('div','','detail-head'), name = text('div',s.name,'nm'); name.append(text('small',s.nameEn));
-  header.append(name,text('div',s.code,'loc')); left.append(header);
-  const photos = text('div','','photo-strip');
-  for (let i = 0; i < 2; i++) { const frame = text('div','','photo'); frame.append(s.photos[i] ? img(s.photos[i]) : text('span','暂无门店照片')); photos.append(frame); } left.append(photos);
-  const right = text('div','','detail-right'), goods = text('div','','panel'), tags = text('div','','sell-tags');
-  goods.append(text('div','经营品类 · Product showcase','ph')); for (const g of s.goods) tags.append(text('span',g));
-  if (!s.goods.length) tags.append(text('span','暂无已发布资料')); goods.append(tags);
-  const message = text('div','','panel'); message.append(text('div','商户寄语 · Shopkeeper’s words','ph'),text('div',s.message || '暂无寄语','intro-quote'),text('div',s.messageEn,'en'));
-  right.append(goods,message); $('detailWrap').replaceChildren(left,right); go('scr-detail');
-}
-function setFloor(id) { floor = id; highlight = ''; closeZoneCard(); renderMap(); }
-function closeZoneCard() { $('zoneCard').style.display = 'none'; }
-function renderMap() {
-  const f = data.floors.find(f => f.id === floor) || data.floors[0], svg = $('floorSvg'); svg.replaceChildren();
-  document.querySelector('.floor-switch').replaceChildren(...data.floors.map(f => { const b = text('button',f.name,'floor-btn' + (f.id === floor ? ' active' : '')); b.onclick = () => setFloor(f.id); return b; }));
-  $('mapSub').textContent = f ? `${f.name} · ${f.schematic ? '示意布局 · Schematic' : '已发布平面导览'}` : '暂无已发布地图';
-  if (!f) return; floor = f.id; svg.setAttribute('viewBox',`0 0 ${f.width} ${f.height}`);
-  for (const z of f.zones) {
-    const group = document.createElementNS('http://www.w3.org/2000/svg','g'), rect = document.createElementNS(svg.namespaceURI,'rect'), label = document.createElementNS(svg.namespaceURI,'text');
-    for (const k of ['x','y','width','height']) rect.setAttribute(k,String(z[k]));
-    const index = data.categories.findIndex(c => c.id === z.categoryId); rect.setAttribute('fill',colors[(index + colors.length) % colors.length]); rect.setAttribute('rx','8');
-    group.style.opacity = highlight && z.categoryId !== highlight ? '.2' : '1';
-    label.setAttribute('x',String(z.x+8)); label.setAttribute('y',String(z.y+22)); label.textContent = z.title; label.style.fontSize = '16px';
-    group.append(rect,label); group.onclick = () => { highlight = z.categoryId; $('zcNm').textContent = z.title; $('zcType').textContent = data.categories.find(c => c.id === z.categoryId)?.name || '公共区域'; $('zcSub').textContent = z.titleEn; $('zcDesc').textContent = z.description + (z.descriptionEn ? ' / ' + z.descriptionEn : ''); $('zoneCard').style.display = 'block'; renderMap(); }; svg.append(group);
-  }
-  $('lgChips').replaceChildren(...data.categories.map((c,i) => { const b = text('button',c.name,'lg-chip'); b.style.borderColor = colors[i % colors.length]; b.onclick = () => { highlight = highlight === c.id ? '' : c.id; renderMap(); }; return b; }));
-}
-function render() {
-  const old = active; $('brand').querySelector('.zh').textContent = data.market?.name || '蛇口市场';
-  const feed = $('feedTrack'); feed.replaceChildren(...data.stalls.map(shopCard));
-  if (!data.stalls.length) empty(feed,data.revision ? '暂无已发布商户资料' : '管理处尚未发布门口展示资料');
-  $('catGrid').replaceChildren(...data.categories.map((c,i) => { const b = text('button','','cat-card'); b.style.borderColor = colors[i % colors.length]; b.append(text('div',c.name,'nm'),text('div',c.nameEn,'en'),text('div',`${data.stalls.filter(s => s.categoryId === c.id).length} 家`,'cnt')); b.onclick = () => openMarketScreenCategory(c.id); return b; }));
-  const ticker = $('tickerTrack'); ticker.replaceChildren(...data.encyclopedia.map(k => { const card = text('div','','sea-card'), info = text('div','','info'); info.append(text('div',k.name,'nm'),text('small',k.nameEn),text('div','产地说明：'+k.origin,'line'),text('div','特点：'+k.features,'line'),text('div','做法：'+k.cooking,'line')); card.append(info); return card; }));
-  if (!data.encyclopedia.length) empty(ticker,'海鲜图鉴资料待完善 · Knowledge directory pending');
-  renderMap(); if (old === 'scr-detail' && data.stalls.some(s => s.id === selected)) openMarketScreenShop(selected); else if (old === 'scr-detail') { openMarketScreenCategory(category); } else if (old === 'scr-list') openMarketScreenCategory(category); else go(old);
-}
-function database() { return new Promise((resolve,reject) => { const req = indexedDB.open('market-entrance-v1',1); req.onupgradeneeded = () => req.result.createObjectStore('snapshots'); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); }
-async function cacheRead() { const db = await database(); try { return await new Promise((resolve,reject) => { const req = db.transaction('snapshots').objectStore('snapshots').get(marketScreenCacheKey); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); } finally { db.close(); } }
-async function cacheWrite(value) { const db = await database(); try { await new Promise((resolve,reject) => { const tx = db.transaction('snapshots','readwrite'); tx.objectStore('snapshots').put(value,marketScreenCacheKey); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error); }); } finally { db.close(); } }
-async function hash(blob) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256',await blob.arrayBuffer()))].map(b => b.toString(16).padStart(2,'0')).join(''); }
-async function prepare(snapshot) {
-  if (snapshot.schemaVersion !== '1.0' || snapshot.market?.id !== market || !Array.isArray(snapshot.stalls) || !Array.isArray(snapshot.categories) || !Array.isArray(snapshot.floors) || !Array.isArray(snapshot.encyclopedia)) throw new Error('展示数据格式或市场不匹配');
-  const blobs = {}, previous = cached?.blobs || {};
-  for (const s of snapshot.stalls) for (const asset of s.photos) {
-    if (previous[asset.sha256]) { blobs[asset.sha256] = previous[asset.sha256]; continue; }
-    const address = new URL(asset.url,base || location.origin); if (!['http:','https:'].includes(address.protocol)) throw new Error('图片地址无效');
-    const response = await fetch(address,{ signal: AbortSignal.timeout(15000), credentials: 'omit' }); if (!response.ok) throw new Error('图片下载失败');
-    const blob = await response.blob(); if (!['image/png','image/jpeg','image/webp'].includes(blob.type) || await hash(blob) !== asset.sha256) throw new Error('图片校验失败');
-    await createImageBitmap(blob).then(bitmap => bitmap.close()); blobs[asset.sha256] = blob;
-  }
-  return { snapshot,blobs };
-}
-function apply(value) {
-  const next = JSON.stringify(value.snapshot,(key,v) => ['url','serverTime'].includes(key) ? undefined : v); cached = value;
-  if (next !== marketScreenFingerprint) {
-    const oldReleases = releases; releases = []; data = structuredClone(value.snapshot);
-    for (const s of data.stalls) for (const a of s.photos) { a.localUrl = URL.createObjectURL(value.blobs[a.sha256]); releases.push(a.localUrl); }
-    render(); oldReleases.forEach(url => URL.revokeObjectURL(url)); marketScreenFingerprint = next;
-  }
-}
-function status(message) { $('syncStatus').textContent = message; }
-async function sync() {
-  if (marketScreenSyncing) return; marketScreenSyncing = true;
-  try {
-    const response = await fetch(marketScreenEndpoint,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(15000)}); const envelope = await response.json();
-    if (!response.ok || envelope.code !== 0) throw new Error(envelope.message || '读取失败');
-    const next = await prepare(envelope.data); let persistent = true;
-    try { await cacheWrite(next); } catch { persistent = false; }
-    apply(next);
-    status(`已发布版本 ${data.revision} · ${data.publishedAt ? new Date(data.publishedAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}) : '尚无发布'}${persistent ? '' : ' · 本机缓存不可用，离线重启可能无法恢复'}`);
-  } catch(e) { status(cached ? `离线/同步失败 · 保留版本 ${cached.snapshot.revision}` : '未能连接，暂无缓存资料'); console.warn('Entrance sync:',e.message); }
-  finally { marketScreenSyncing = false; setTimeout(sync,60000); }
-}
-// Native scroll areas support touch/mouse wheel; auto-scroll pauses while interacting.
-let pausedUntil = 0;
-document.addEventListener('pointerdown',() => { pausedUntil = Infinity; lastAction = Date.now(); });
-const resume = () => { pausedUntil = Date.now()+1500; lastAction = Date.now(); };
-document.addEventListener('pointerup',resume); document.addEventListener('pointercancel',resume); document.addEventListener('wheel',resume,{passive:true});
-window.addEventListener('blur',resume);
-function mouseDrag(el, axis) {
-  let start, position = 0, moved = false;
-  const coordinate = e => axis === 'scrollTop' ? e.clientY : e.clientX;
-  el.addEventListener('pointerdown',e => { if(e.pointerType === 'mouse' && e.button === 0) { start = coordinate(e); position = el[axis]; moved = false; } });
-  el.addEventListener('pointermove',e => {
-    if(start === undefined || !e.buttons) return;
-    const delta = coordinate(e)-start;
-    if(Math.abs(delta)>5 || moved) { moved = true; el.setPointerCapture(e.pointerId); el[axis] = position-delta; e.preventDefault(); }
-  });
-  for(const event of ['pointerup','pointercancel']) el.addEventListener(event,() => { start = undefined; setTimeout(() => { moved = false; },0); });
-  el.addEventListener('click',e => { if(moved) { e.preventDefault(); e.stopImmediatePropagation(); } },true);
-}
-mouseDrag(document.querySelector('.feed-viewport'),'scrollTop');mouseDrag($('ticker'),'scrollLeft');mouseDrag($('shopScroll'),'scrollTop');
-function updateDate() {
-  const now = new Date(); $('dateText').textContent = now.toLocaleDateString('zh-CN',{timeZone:'Asia/Shanghai'}); $('weekZh').textContent = now.toLocaleDateString('zh-CN',{timeZone:'Asia/Shanghai',weekday:'long'}); $('weekEn').textContent = now.toLocaleDateString('en-US',{timeZone:'Asia/Shanghai',weekday:'long'});
-  if (Date.now()-lastAction > 120000 && active !== 'scr-home') go('scr-home');
-}
-updateDate(); setInterval(updateDate,1000);
-let lastFrame = 0;
-function animate(time) {
-  if (time-lastFrame > 30 && Date.now() > pausedUntil && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    for (const [el,axis] of [[document.querySelector('.feed-viewport'),'scrollTop'],[$('ticker'),'scrollLeft']]) {
-      const max = axis === 'scrollTop' ? el.scrollHeight-el.clientHeight : el.scrollWidth-el.clientWidth;
-      if (max>0) el[axis] = el[axis] >= max-1 ? 0 : el[axis]+1;
-    }
-    lastFrame = time;
-  }
-  requestAnimationFrame(animate);
-}
-Object.assign(window,{go,goBack,setFloor,closeZoneCard});
-go('scr-home'); render(); requestAnimationFrame(animate);
-if ('serviceWorker' in navigator && !import.meta.env?.DEV) navigator.serviceWorker.register(new URL('./sw.js',document.baseURI)).catch(() => {});
-void (async () => {
-  try {
-    const previous = await cacheRead();
-    if (previous) {
-      for (const s of previous.snapshot.stalls) for (const a of s.photos) {
-        const blob = previous.blobs[a.sha256]; if (!blob || await hash(blob) !== a.sha256) throw new Error('缓存图片校验失败');
-      }
-      apply(previous); status(`缓存版本 ${previous.snapshot.revision} · 正在同步`);
-    }
-  } catch { status('缓存不可用，正在尝试联网'); }
-  void sync();
-})();
+import {createMarketClient} from './market-data.js';
+const iconFiles=import.meta.glob('../icons/*.svg',{eager:true,query:'?url',import:'default'});
+const artFiles=import.meta.glob('../images/icon-*.png',{eager:true,query:'?url',import:'default'});
+const artNames={storefront:'shop','map-trifold':'map',fish:'seafood',leaf:'vegetables',egg:'meat',grains:'grain','cooking-pot':'condiments'};
+const $=id=>document.getElementById(id);
+const el=(tag,value='',className='')=>{const node=document.createElement(tag);node.textContent=value;node.className=className;return node;};
+function icon(name,extra=''){const img=el('img','','icon '+extra);const art=artFiles['../images/icon-'+artNames[name]+'.png'];if(art)img.classList.add('art-icon');img.src=art||iconFiles[`../icons/${name}.svg`]||iconFiles['../icons/storefront.svg'];img.alt='';img.setAttribute('aria-hidden','true');return img;}
+function button(label,callback,cls='quiet-button',symbol){const b=el('button','',cls);b.type='button';if(symbol)b.append(icon(symbol));b.append(el('span',label));b.addEventListener('click',callback);return b;}
+function empty(title,description,symbol='storefront'){const box=el('div','','empty-state');box.append(icon(symbol),el('h3',title),el('p',description));return box;}
+let data={categories:[],stalls:[],floors:[],encyclopedia:[]},view='home',category='',selected='',floor='',zone='',query='',offset=0,lastAction=Date.now(),client,loadState='loading',detailReturn='shops';
+const isPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('preview')==='design';
+const catIcons=['fish','leaf','egg','grains','cooking-pot'];
+function categoryIcon(c){const name=c.name;if(/水产|海鲜/.test(name))return 'fish';if(/蔬|果/.test(name))return 'leaf';if(/肉|禽|蛋/.test(name))return 'egg';if(/粮|油|干货/.test(name))return 'grains';if(/副食|调料|熟食/.test(name))return 'cooking-pot';return 'storefront';}
+function photo(asset,name){if(!asset?.localUrl){const p=el('div','','photo-empty');p.append(icon('storefront'),el('span','暂无门店照片'));return p;}const img=el('img','','shop-photo');img.src=asset.localUrl;img.alt=(isPreview?'设计示意：':'')+name+'门店照片';img.addEventListener('error',()=>img.replaceWith(photo(null,name)),{once:true});return img;}
+function navigate(next,options={}){if(next==='detail'&&view!=='detail')detailReturn=view==='map'?'map':'shops';view=next;if(options.category!==undefined){category=options.category;query='';}if(options.selected!==undefined)selected=options.selected;if(options.floor!==undefined){floor=options.floor;zone='';}if(options.zone!==undefined)zone=options.zone;lastAction=Date.now();render();$('main').focus({preventScroll:true});}
+function renderBar(){const bar=$('categoryBar');bar.replaceChildren();if(!data.categories.length){bar.append(el('span','商户分类将在资料发布后显示','category-placeholder'));return;}for(const c of data.categories){const b=button(c.name,()=>navigate('shops',{category:c.id}),'category-item'+(view==='shops'&&category===c.id?' selected':''),categoryIcon(c));b.setAttribute('aria-pressed',String(view==='shops'&&category===c.id));bar.append(b);}}
+function card(stall,feature=false){const b=el('button','',feature?'shop-feature':'shop-card');b.type='button';b.setAttribute('aria-label',`查看${stall.name}详情`);b.append(photo(stall.photos[0],stall.name));const copy=el('div','',feature?'feature-copy':'card-copy');copy.append(el('h3',stall.name));if(!feature&&stall.code)copy.append(el('span',stall.code,'stall-code'));copy.append(el('p',stall.intro||'暂无店铺介绍'));if(feature)copy.append(icon('arrow-right'));b.append(copy);if(isPreview&&feature)b.append(el('span','示意','sample-tag'));b.onclick=()=>navigate('detail',{selected:stall.id});return b;}
+function action(title,subtitle,symbol,callback,primary=false){const b=el('button','','wayfinding'+(primary?' primary':''));b.type='button';b.append(icon(symbol));const copy=el('span','','action-copy');copy.append(el('span',title,'action-title'),el('span',subtitle,'action-sub'));b.append(copy,icon('arrow-right','arrow'));b.onclick=callback;return b;}
+function home(){const layout=el('div','','home-layout'),container=el('div','','spotlight-container'),features=el('div','','spotlight');
+ if(data.stalls.length){offset=Math.min(offset,Math.max(0,data.stalls.length-1));for(let i=0;i<Math.min(3,data.stalls.length);i++)features.append(card(data.stalls[(offset+i)%data.stalls.length],true));container.append(features);if(data.stalls.length>3){const pager=el('div','','pager');for(const [label,dir,symbol] of [['上一组',-3,'caret-left'],['下一组',3,'caret-right']]){const b=button('',()=>{offset=(offset+dir+data.stalls.length)%data.stalls.length;render();},'quiet-button',symbol);b.setAttribute('aria-label',label);pager.append(b);}container.append(pager);}}
+ else{const title=loadState==='loading'?'正在准备市场资料':loadState==='offline'?'市场资料暂未连接':'期待认识这里的每一家';const hint=loadState==='offline'?'暂时无法获取已发布资料，请稍后再试。':'管理处发布商户资料后，门店介绍和照片会在这里与你见面。';container.append(empty(title,hint));}
+ const welcome=el('section','','welcome'),heading=el('div');heading.append(el('h2','逛市场，从这里开始'),el('p','新鲜好物 · 便捷导览 · 发现更多','subtitle'));const actions=el('div','','welcome-actions');actions.append(action('找商户','浏览全部商户','storefront',()=>navigate('shops',{category:''}),true),action('看地图','查看市场区域导览','map-trifold',()=>navigate('map')));welcome.append(heading,actions);if(data.encyclopedia.length)welcome.append(button('逛逛食材图鉴',()=>navigate('knowledge'),'secondary-link'));layout.append(container,welcome);return layout;}
+function section(title,back=()=>navigate('home')){const root=el('section','','section-view'),head=el('div','','section-heading');head.append(button('返回',back,'back-button','arrow-left'),el('h2',title));root.append(head);return {root,head};}
+function filteredStalls(){const term=query.trim().toLocaleLowerCase();return data.stalls.filter(s=>(!category||s.categoryId===category)&&(!term||[s.name,s.nameEn,s.code,s.intro,...s.goods].some(v=>v.toLocaleLowerCase().includes(term))));}
+function shopList(){const title=data.categories.find(c=>c.id===category)?.name||'全部商户';const {root,head}=section(title);if(category)head.append(button('全部商户',()=>navigate('shops',{category:''})));const search=el('label','','search');search.append(icon('magnifying-glass'));const input=el('input');input.type='search';input.placeholder='搜索店名、编号或品类';input.setAttribute('aria-label','搜索店名、编号或品类');input.value=query;search.append(input);head.append(search);const grid=el('div','','shop-grid');function results(){grid.replaceChildren();const rows=filteredStalls();if(rows.length)grid.append(...rows.map(s=>card(s)));else grid.append(empty(query?'没有找到相关商户':'暂无已发布商户',query?'试试其他店名、摊位编号或经营品类。':'该分类有新的公开资料后，会显示在这里。'));}input.oninput=()=>{query=input.value;lastAction=Date.now();results();};results();root.append(grid);return root;}
+function details(){const s=data.stalls.find(x=>x.id===selected);if(!s){view='shops';return shopList();}const {root,head}=section(s.name,()=>navigate(detailReturn));if(s.code)head.append(el('span',s.code,'stall-code'));const content=el('div','','detail-content'),photos=el('div','','detail-photos');for(let i=0;i<2;i++)photos.append(photo(s.photos[i],s.name));const copy=el('div','','detail-text');if(s.nameEn)copy.append(el('p',s.nameEn,'en'));copy.append(el('h3','认识这家店'),el('p',s.intro||'暂无已发布介绍'));if(s.introEn)copy.append(el('p',s.introEn,'en'));copy.append(el('h3','经营品类'));const goods=el('div','','goods');goods.append(...(s.goods.length?s.goods:['暂无已发布品类']).map(g=>el('span',g)));copy.append(goods,el('h3','商户寄语'),el('p',s.message||'暂无寄语'));if(s.messageEn)copy.append(el('p',s.messageEn,'en'));const f=data.floors.find(x=>x.id===s.floorId),z=f?.zones.find(x=>x.id===s.zoneId);if(f)copy.append(button(`查看位置 · ${f.name}${z?' / '+z.title:''}`,()=>{floor=f.id;zone=z?.id||'';navigate('map');},'quiet-button','map-trifold'));content.append(photos,copy);root.append(content);return root;}
+function marketMap(){const {root,head}=section('市场导览');if(!data.floors.length){root.append(empty('市场地图待完善','管理处发布市场布局后，可在这里查看楼层与区域信息。','map-trifold'));return root;}const f=data.floors.find(x=>x.id===floor)||data.floors[0];floor=f.id;const layout=el('div','','map-layout'),area=el('div','','map-area'),tabs=el('div','','floor-tabs');for(const item of data.floors)tabs.append(button(item.name,()=>navigate('map',{floor:item.id}),'quiet-button'+(floor===item.id?' active':'')));const canvas=el('div','','map-canvas'),board=el('div','','map-board');board.style.setProperty('--ratio',`${f.width}/${f.height}`);const colors=['#b3dded','#bfe4c9','#f1c5b2','#e9ddb2','#d9cee9'];for(const z of f.zones){const b=button(z.title,()=>navigate('map',{zone:z.id}),'zone'+(zone===z.id?' selected':''));b.setAttribute('aria-pressed',String(zone===z.id));for(const [key,value]of Object.entries({x:100*z.x/f.width,y:100*z.y/f.height,w:100*z.width/f.width,h:100*z.height/f.height}))b.style.setProperty('--'+key,value+'%');b.style.setProperty('--zone-color',colors[Math.max(0,data.categories.findIndex(c=>c.id===z.categoryId))%colors.length]);board.append(b);}canvas.append(board);area.append(tabs,canvas,el('p',f.schematic?'示意布局 · 位置以现场指引为准':'已发布市场布局','map-caption'));const info=el('aside','','zone-info'),z=f.zones.find(x=>x.id===zone);if(z){info.append(el('h3',z.title));if(z.titleEn)info.append(el('p',z.titleEn,'en'));info.append(el('p',z.description||'暂无区域说明'));if(z.descriptionEn)info.append(el('p',z.descriptionEn,'en'));const rows=data.stalls.filter(s=>s.floorId===f.id&&s.zoneId===z.id);for(const s of rows)info.append(button(s.name,()=>navigate('detail',{selected:s.id})));if(!rows.length)info.append(el('p','本区域暂无已发布商户资料'));}else info.append(el('h3','轻触地图上的区域'),el('p','了解区域信息，找到想逛的店铺。'));layout.append(area,info);root.append(layout);return root;}
+function knowledge(){const {root}=section('食材图鉴'),list=el('div','','knowledge-list');for(const k of data.encyclopedia){const item=el('article','','knowledge-item');item.append(el('h3',k.name));if(k.nameEn)item.append(el('p',k.nameEn,'en'));for(const [label,key]of [['产地','origin'],['特点','features'],['推荐做法','cooking']])item.append(el('h4',label),el('p',k[key]||'暂无资料'));list.append(item);}if(!list.children.length)list.append(empty('图鉴资料待完善','发布后将在这里展示食材知识。','books'));root.append(list);return root;}
+function render(){const active=document.activeElement;const searchFocused=active?.tagName==='INPUT';const cursor=searchFocused?active.selectionStart:null;$('marketName').textContent=data.market?.name||'蛇口市场';$('main').replaceChildren(({home,shops:shopList,detail:details,map:marketMap,knowledge}[view]||home)());renderBar();if(searchFocused&&view==='shops'){const input=$('main').querySelector('input');input.focus();if(input.type==='text')input.setSelectionRange(cursor,cursor);}}
+$('brandHome').onclick=()=>navigate('home');for(const event of ['pointerdown','keydown','wheel'])document.addEventListener(event,()=>{lastAction=Date.now();},{passive:true});
+function clock(){const now=new Date();$('dateText').dateTime=now.toISOString();$('dateText').textContent=now.toLocaleDateString('zh-CN',{timeZone:'Asia/Shanghai',month:'long',day:'numeric',weekday:'long'});if(view!=='home'&&Date.now()-lastAction>120000)navigate('home');}clock();setInterval(clock,1000);
+render();
+if(isPreview){$('previewNotice').hidden=false;const {previewData}=await import('./design-preview.js');data=previewData;loadState='ready';$('syncStatus').textContent='设计示意 · 非真实商户资料';render();}
+else {const config=window.ENTRANCE_CONFIG||{};client=createMarketClient({apiBase:config.apiBase||'',marketId:config.marketId||'mkt_001',onData(next){data=next;loadState='ready';render();},onStatus(message,state){loadState=state;$('syncStatus').textContent=message;if(view==='home'&&!data.stalls.length)render();}});void client.start();window.addEventListener('online',()=>client.refresh());window.addEventListener('pagehide',event=>{if(!event.persisted)client.stop();});if('serviceWorker'in navigator&&!import.meta.env.DEV)navigator.serviceWorker.register(new URL('sw.js',document.baseURI)).catch(()=>{$('syncStatus').textContent+=' · 离线页面缓存不可用';});}
