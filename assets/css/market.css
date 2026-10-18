@@ -16,3 +16,4 @@
 @media(max-width:600px){.wayfinding>.art-icon{width:44px;height:44px;margin:-4px}}
 .masthead{z-index:2}.main-surface{z-index:1}
 @media(min-width:1400px){.masthead{padding-left:4vw}.brand h1{font-size:clamp(100px,7.2vw,145px)}}
+.pager{left:auto;right:15px}
