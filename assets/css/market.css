@@ -230,3 +230,13 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
  .knowledge-item .seafood-photo{width:34%;min-height:12vh}
  .knowledge-item .seafood-copy{gap:.8vh}
 }
+
+/* ===== 海鲜图鉴页隐藏底部分类栏（2026-10-19 用户要求；地图页已由 market-map.css 的 .map-view 处理）===== */
+.knowledge-view .category-bar{display:none}
+
+/* ===== 返回键统一移到右下角（2026-10-19 用户要求）=====
+   section() 不再把返回键放进标题栏，改由各视图把 .floating-back 追加在内容之后；
+   margin-top:auto 在 flex 纵向布局里把按钮推到内容区底部，align-self:flex-end 右对齐。
+   不用绝对定位：不遮挡滚动内容，展开地图时随主面板被全屏层覆盖（Escape 先收起）。 */
+.floating-back{margin-top:auto;align-self:flex-end;flex-shrink:0;gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
+.floating-back .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
