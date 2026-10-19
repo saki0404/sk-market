@@ -216,9 +216,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 /* ===== 海鲜图鉴：卡片与商户卡一致的边框、圆角与浮动效果 (2026-10-19) ===== */
 .knowledge-item{border-radius:1.5rem 2rem 1.5rem 2rem;transition:transform .3s ease,box-shadow .3s ease}
 .knowledge-item:hover{transform:translateY(-4px);box-shadow:0 20px 40px -10px rgba(93,112,82,.2)}
-/* 图鉴卡片：左侧海鲜图片，右侧文字（学名/产地/怎么吃/特点） */
+/* 图鉴卡片：左侧海鲜图片，右侧文字（产地/怎么吃/特点） */
 .knowledge-item{display:flex;gap:16px;align-items:stretch;padding:14px}
-.knowledge-item .seafood-photo{width:32%;flex-shrink:0;object-fit:cover;border-radius:1.25rem;background:var(--stone);min-height:150px}
+.knowledge-item .seafood-photo{width:38%;flex-shrink:0;aspect-ratio:3/4;align-self:center;object-fit:cover;border-radius:1.25rem;background:var(--stone);min-height:0}
 .knowledge-item .photo-empty.seafood-photo{display:flex;flex-direction:column;align-items:center;justify-content:center}
 .knowledge-item .seafood-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:10px}
 .knowledge-item .seafood-copy h3{margin:0 0 4px}
@@ -227,7 +227,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 @media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
  .knowledge-list{grid-template-columns:repeat(2,minmax(0,1fr))}
  .knowledge-item{padding:1vw}
- .knowledge-item .seafood-photo{width:34%;min-height:12vh}
+ .knowledge-item .seafood-photo{width:40%;min-height:0}
  .knowledge-item .seafood-copy{gap:.8vh}
 }
 
@@ -240,3 +240,15 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
    不用绝对定位：不遮挡滚动内容，展开地图时随主面板被全屏层覆盖（Escape 先收起）。 */
 .floating-back{margin-top:auto;align-self:flex-end;flex-shrink:0;gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
 .floating-back .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
+
+/* ===== 顶部食材剪影横幅背景（2026-10-19 用户提供图）=====
+   整张原图按原始比例（1920×640 = 3:1）铺满页面宽度，
+   mask 让不透明度从顶部 50% 自然渐隐到图片底部 0，只作装饰不挡点击。 */
+.produce-banner{position:absolute;top:0;left:0;right:0;aspect-ratio:1920/640;background:url('../images/produce-silhouette-banner.jpg') center top/100% 100% no-repeat;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,0));mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,0))}
+
+/* 副标题（新鲜好物·便捷导览·发现更多）已删除：在近方形大屏布局里给标题行
+   加上下等宽内边距，使其在原"标题+副标题"文字块的位置内垂直居中，上下留白一致；
+   商户卡片与双入口按钮回到原位。 */
+@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+  .welcome>div:first-child{padding:1.4vh 0}
+}
