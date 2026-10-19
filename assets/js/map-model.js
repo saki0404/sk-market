@@ -1,6 +1,28 @@
 export function zoneMerchants(stalls,floorId,zoneId){
  return zoneId?stalls.filter(s=>s.floorId===floorId&&s.zoneId===zoneId):[];
 }
+const contains=(outer,inner)=>inner.x>=outer.x&&inner.y>=outer.y&&inner.x+inner.width<=outer.x+outer.width&&inner.y+inner.height<=outer.y+outer.height;
+export function publishedAreas(floor,stalls){
+ if(!floor)return [];
+ if(!floor.shapes)return floor.zones||[];
+ return floor.shapes.filter(s=>s.type!=='polyline').map(s=>{
+  const shop=s.type==='rect'?stalls.find(row=>row.id===s.stallId):null;
+  const region=floor.shapes.find(r=>r.type==='region'&&contains(r,s));
+  return {...s,title:s.type==='region'?s.name:shop?.name||s.label||'暂无已发布资料',titleEn:s.type==='region'?s.nameEn||'':shop?.nameEn||'',color:s.type==='rect'?(region?.color||s.color):s.color};
+ });
+}
+export function areaMerchants(stalls,floor,area){
+ if(!floor.shapes)return zoneMerchants(stalls,floor.id,area.id);
+ const ids=new Set(area.type==='rect'?[area.stallId]:floor.shapes.filter(s=>s.type==='rect'&&contains(area,s)).map(s=>s.stallId));
+ return stalls.filter(s=>ids.has(s.id));
+}
+export function stallLocation(floors,stall){
+ for(const floor of floors){
+  const area=floor.shapes?publishedAreas(floor,[stall]).find(s=>s.type==='rect'&&s.stallId===stall.id):floor.id===stall.floorId?(floor.zones||[]).find(z=>z.id===stall.zoneId):null;
+  if(area)return {floor,area};
+ }
+ return null;
+}
 export function matchesMapQuery(item,query,merchants=[]){
  const q=query.trim().toLocaleLowerCase();
  return !q||[item.title,item.titleEn,item.description,...merchants.flatMap(s=>[s.name,s.nameEn,s.code,...s.goods])].some(v=>String(v||'').toLocaleLowerCase().includes(q));

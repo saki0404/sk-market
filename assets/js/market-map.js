@@ -1,7 +1,7 @@
 import planUrl from '../images/shekou-floor-1-reference.jpg';
 import '../css/market-map.css';
 import {referencePlan,referenceAreas} from './map-reference.js';
-import {zoneMerchants,matchesMapQuery,fitBounds,clampView,zoomView} from './map-model.js';
+import {publishedAreas,areaMerchants,matchesMapQuery,fitBounds,clampView,zoomView} from './map-model.js';
 
 const node=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;n.className=cls;return n;};
 const svgNode=(tag,attrs={})=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [key,value]of Object.entries(attrs))n.setAttribute(key,String(value));return n;};
@@ -23,8 +23,8 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
  if(!state.source)state.source=referenceEnabled?'reference':data.floors[0]?.id;
  if(state.source!=='reference'&&!data.floors.some(f=>f.id===state.source))state.source=referenceEnabled?'reference':data.floors[0]?.id;
  const isReference=()=>state.source==='reference';
- const areas=()=>isReference()?referenceAreas:(currentFloor?.zones||[]);
- const merchants=area=>isReference()?[]:zoneMerchants(data.stalls,currentFloor.id,area.id);
+ const areas=()=>isReference()?referenceAreas:publishedAreas(currentFloor,data.stalls);
+ const merchants=area=>isReference()?[]:areaMerchants(data.stalls,currentFloor,area);
  function drawView(){if(!view)return;svg.setAttribute('viewBox',`${view.x} ${view.y} ${view.width} ${view.height}`);zoomOut.disabled=view.width>=baseWidth*1.99;zoomIn.disabled=view.width<=world.width/12*1.01;}
  function aspect(){return Math.max(.2,stage.clientWidth/Math.max(1,stage.clientHeight));}
  function fit(bounds){view=fitBounds(bounds,aspect(),24);view=clampView(view,world);drawView();}
@@ -79,8 +79,10 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
    caption.textContent='用户提供的一层参考图 · 高亮为部分参考区域，非实时商户位置；以现场指引为准。 / Reference only';
   }else{
    art.append(svgNode('rect',{x:0,y:0,...world,fill:'#f5f2e9'}));
-   for(const z of currentFloor.zones){const g=svgNode('g',{role:'button',tabindex:0,'data-zone-id':z.id,'aria-label':z.title});g.classList.add('guide-zone');g.append(svgNode('rect',{x:z.x,y:z.y,width:z.width,height:z.height,fill:'#d8e4ce',stroke:'#fff','stroke-width':3,rx:8}));const t=svgNode('text',{x:z.x+z.width/2,y:z.y+z.height/2,'text-anchor':'middle','dominant-baseline':'middle','font-size':Math.min(28,z.height/4,z.width/Math.max(3,z.title.length))});t.textContent=z.title;g.append(t);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();activate(z);}};art.append(g);}
-   caption.textContent=(currentFloor.schematic?'已发布示意布局 · 以现场指引为准':'管理处已发布布局')+' · 仅展示明确绑定此楼层和区域的商户 / Published zones';
+   const ordered=areas().sort((a,b)=>(a.type==='region'?0:1)-(b.type==='region'?0:1));
+   for(const z of ordered){const g=svgNode('g',{role:'button',tabindex:0,'data-zone-id':z.id,'aria-label':z.title});g.classList.add('guide-zone');g.append(svgNode('rect',{x:z.x,y:z.y,width:z.width,height:z.height,fill:z.color||'#d8e4ce','fill-opacity':z.type==='region'?.2:1,stroke:z.color||'#fff','stroke-width':3,'stroke-dasharray':z.dash?'8 6':'none',rx:3}));const t=svgNode('text',{x:z.x+z.width/2,y:z.type==='region'?z.y+18:z.y+z.height/2,'text-anchor':'middle','dominant-baseline':'middle','font-size':Math.min(28,z.height/4,z.width/Math.max(3,z.title.length))});t.textContent=z.title;g.append(t);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();activate(z);}};art.append(g);}
+   for(const road of currentFloor.shapes||[]){if(road.type!=='polyline')continue;art.append(svgNode('polyline',{points:road.points.reduce((pairs,n,i)=>{if(i%2===0)pairs.push(n+','+road.points[i+1]);return pairs;},[]).join(' '),fill:'none',stroke:road.color||'#b7b3aa','stroke-width':3,'stroke-dasharray':road.dash?'8 6':'none','pointer-events':'none'}));}
+   caption.textContent=(currentFloor.schematic?'已发布示意布局 · 以现场指引为准':'管理处已发布布局')+' · 仅展示明确绑定的商户 / Published layout';
   }
   selectedArea=areas().find(a=>a.id===state.selected);renderInfo();renderResults();drawSelection();reset();if(selectedArea)focusArea();
  }

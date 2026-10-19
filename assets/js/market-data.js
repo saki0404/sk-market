@@ -11,12 +11,31 @@ export function validateSnapshot(s, marketId) {
   const cats = new Set(s.categories.map(c => c.id));
   for (const c of s.categories) if (!strings(c,['name','nameEn'])) fail();
   for (const row of s.stalls) {
-    if (!strings(row,['name','code','nameEn','intro','introEn','message','messageEn','categoryId','floorId','zoneId']) || !cats.has(row.categoryId) || !Array.isArray(row.goods) || !row.goods.every(g => typeof g === 'string') || !Array.isArray(row.photos) || row.photos.length > 2) fail();
+    if (!strings(row,['name','code','nameEn','intro','introEn','message','messageEn','categoryId','floorId']) || !cats.has(row.categoryId) || !Array.isArray(row.goods) || !row.goods.every(g => typeof g === 'string') || !Array.isArray(row.photos) || row.photos.length > 2) fail();
     for (const a of row.photos) if (!object(a) || !strings(a,['id','url','sha256','mimeType']) || !allowedMime.has(a.mimeType) || !/^[a-f0-9]{64}$/i.test(a.sha256)) fail();
   }
   for (const f of s.floors) {
-    if (!strings(f,['name','nameEn']) || !Number.isFinite(f.width) || f.width <= 0 || !Number.isFinite(f.height) || f.height <= 0 || !Array.isArray(f.zones) || !unique(f.zones) || f.zones.length > 300) fail();
-    for (const z of f.zones) {
+    if (!strings(f,['name','nameEn']) || !Number.isFinite(f.width) || f.width <= 0 || !Number.isFinite(f.height) || f.height <= 0) fail();
+    // Old on-device snapshots remain readable; new publications use shapes.
+    const shapes = f.shapes === undefined ? f.zones : f.shapes;
+    if (!Array.isArray(shapes) || shapes.some(z => !object(z) || typeof z.id !== 'string') || !unique(shapes) || shapes.length > 300) fail();
+    if (f.shapes !== undefined) {
+      for (const z of shapes) {
+        if (!['rect','region','polyline'].includes(z.type)) fail();
+        if (z.color !== undefined && !/^#[a-f0-9]{6}$/i.test(z.color)) fail();
+        if (z.dash !== undefined && typeof z.dash !== 'boolean') fail();
+        if (['label','name','nameEn'].some(k => z[k] !== undefined && typeof z[k] !== 'string')) fail();
+        if (z.type === 'polyline') {
+          if (!Array.isArray(z.points) || z.points.length < 4 || z.points.length % 2 || z.points.some((n,i) => !Number.isInteger(n) || n < 0 || n > (i%2 ? f.height : f.width))) fail();
+        } else {
+          if (!['x','y','width','height'].every(k => Number.isInteger(z[k])) || z.x < 0 || z.y < 0 || z.width <= 0 || z.height <= 0 || z.x+z.width > f.width || z.y+z.height > f.height) fail();
+          if (z.type === 'rect' && (typeof z.stallId !== 'string' || !z.stallId)) fail();
+          if (z.type === 'region' && typeof z.name !== 'string') fail();
+        }
+      }
+      continue;
+    }
+    for (const z of shapes) {
       if (!object(z) || !strings(z,['id','categoryId','title','titleEn','description','descriptionEn']) || !['x','y','width','height'].every(k => Number.isFinite(z[k])) || z.x < 0 || z.y < 0 || z.width <= 0 || z.height <= 0 || z.x+z.width > f.width || z.y+z.height > f.height) fail();
     }
   }
