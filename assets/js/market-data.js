@@ -20,7 +20,11 @@ export function validateSnapshot(s, marketId) {
       if (!object(z) || !strings(z,['id','categoryId','title','titleEn','description','descriptionEn']) || !['x','y','width','height'].every(k => Number.isFinite(z[k])) || z.x < 0 || z.y < 0 || z.width <= 0 || z.height <= 0 || z.x+z.width > f.width || z.y+z.height > f.height) fail();
     }
   }
-  for (const k of s.encyclopedia) if (!strings(k,['name','nameEn','origin','features','cooking'])) fail();
+  for (const k of s.encyclopedia) {
+    if (!strings(k,['name','nameEn','origin','features','cooking'])) fail();
+    if (k.scientificName !== undefined && typeof k.scientificName !== 'string') fail();
+    if (k.photos !== undefined && (!Array.isArray(k.photos) || k.photos.length > 1 || k.photos.some(a => !object(a) || !strings(a,['id','url','sha256','mimeType']) || !allowedMime.has(a.mimeType) || !/^[a-f0-9]{64}$/i.test(a.sha256)))) fail();
+  }
   return s;
 }
 export const contentFingerprint = snapshot => JSON.stringify(snapshot,(key,value) => ['url','serverTime'].includes(key) ? undefined : value);
@@ -35,7 +39,7 @@ export function createMarketClient({apiBase='',marketId,onData,onStatus,fetcher=
   let previous, fingerprint='', urls=[], timer, stopped=false, syncing=false, controller;
   async function prepare(snapshot,existing={}) {
     validateSnapshot(snapshot,marketId); const blobs={};
-    for(const row of snapshot.stalls) for(const asset of row.photos) {
+    for(const row of [...snapshot.stalls, ...snapshot.encyclopedia]) for(const asset of row.photos || []) {
       if(blobs[asset.sha256]) continue;
       if(existing[asset.sha256]) { blobs[asset.sha256]=existing[asset.sha256]; continue; }
       const address=new URL(asset.url,base?new URL(base,location.href):location.origin);
@@ -52,6 +56,7 @@ export function createMarketClient({apiBase='',marketId,onData,onStatus,fetcher=
     if(next===fingerprint||stopped)return;
     const old=urls; urls=[]; const data=structuredClone(value.snapshot);
     for(const row of data.stalls)for(const a of row.photos){a.localUrl=URL.createObjectURL(value.blobs[a.sha256]);urls.push(a.localUrl);}
+    for(const row of data.encyclopedia)for(const a of row.photos || []){a.localUrl=URL.createObjectURL(value.blobs[a.sha256]);urls.push(a.localUrl);}
     onData(data); fingerprint=next; old.forEach(u=>URL.revokeObjectURL(u));
   }
   async function sync() {

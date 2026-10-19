@@ -212,3 +212,21 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 /* ===== 分类图标：薄荷 3D 杂货图标（用户 2026-10-19 提供，已切分为透明底 PNG）=====
    保留原生彩色，取消 Organic 层的苔藓绿染色 */
 .category-item .icon.art-icon{filter:none;opacity:1}
+
+/* ===== 海鲜图鉴：卡片与商户卡一致的边框、圆角与浮动效果 (2026-10-19) ===== */
+.knowledge-item{border-radius:1.5rem 2rem 1.5rem 2rem;transition:transform .3s ease,box-shadow .3s ease}
+.knowledge-item:hover{transform:translateY(-4px);box-shadow:0 20px 40px -10px rgba(93,112,82,.2)}
+/* 图鉴卡片：左侧海鲜图片，右侧文字（学名/产地/怎么吃/特点） */
+.knowledge-item{display:flex;gap:16px;align-items:stretch;padding:14px}
+.knowledge-item .seafood-photo{width:32%;flex-shrink:0;object-fit:cover;border-radius:1.25rem;background:var(--stone);min-height:150px}
+.knowledge-item .photo-empty.seafood-photo{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.knowledge-item .seafood-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:10px}
+.knowledge-item .seafood-copy h3{margin:0 0 4px}
+.knowledge-item .seafood-copy h4{margin:0;color:var(--muted);font-size:.72em;letter-spacing:.05em}
+.knowledge-item .seafood-copy p{margin:0;font-size:.92em;line-height:1.55;overflow-wrap:anywhere}
+@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+ .knowledge-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .knowledge-item{padding:1vw}
+ .knowledge-item .seafood-photo{width:34%;min-height:12vh}
+ .knowledge-item .seafood-copy{gap:.8vh}
+}
