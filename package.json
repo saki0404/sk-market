@@ -3,14 +3,21 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "engines": {"node": ">=22.12.0"},
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5188 --strictPort",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5188 --strictPort",
-    "check": "node --check assets/js/app.js && node --check assets/js/market-data.js && node --check assets/js/design-preview.js && node --check sw.js",
+    "check": "node --check assets/js/app.js && node --check assets/js/market-data.js && node --check assets/js/design-preview.js && node --check assets/js/market-map.js && node --check assets/js/map-reference.js && node --check assets/js/map-scene.js && node --check sw.js",
     "test": "node --test tests/*.test.mjs",
     "test:build": "node scripts/check-build.mjs"
   },
-  "devDependencies": {"vite": "6.4.4"}
+  "devDependencies": {
+    "vite": "6.4.4"
+  },
+  "dependencies": {
+    "panzoom": "9.4.4"
+  }
 }

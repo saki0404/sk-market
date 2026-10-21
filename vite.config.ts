@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 const root=dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
  base:'./',publicDir:false,
- plugins:[{name:'market-offline-shell',writeBundle(output,bundle){
+ plugins:[{name:'market-third-party-notices',generateBundle(){this.emitFile({type:'asset',fileName:'assets/THIRD-PARTY-NOTICES.txt',source:readFileSync(resolve(root,'THIRD-PARTY-NOTICES.txt'),'utf8')});}},{name:'market-offline-shell',writeBundle(output,bundle){
   const out=output.dir||resolve(root,'dist');copyFileSync(resolve(root,'config.js'),resolve(out,'config.js'));
   const assets=Object.keys(bundle).filter(name=>name!=='index.html'&&!name.endsWith('.map'));
   const version=createHash('sha256').update(Object.values(bundle).map(file=>file.type==='chunk'?file.code:String(file.source)).join('')).update(readFileSync(resolve(root,'config.js'))).digest('hex').slice(0,16);

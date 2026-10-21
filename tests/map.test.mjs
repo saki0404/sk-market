@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {zoneMerchants,matchesMapQuery,fitBounds,zoomView,clampView} from '../assets/js/map-model.js';
-import {referenceAreas,referencePlan} from '../assets/js/map-reference.js';
+import {referenceAreas,referencePlan,annexPlan,mapFamilies} from '../assets/js/map-reference.js';
 test('merchant locations require both the published floor and zone',()=>{
  const stalls=[{id:'a',floorId:'f1',zoneId:'z1'},{id:'b',floorId:'f2',zoneId:'z1'},{id:'c',floorId:'',zoneId:'',categoryId:'seafood'}];
  assert.deepEqual(zoneMerchants(stalls,'f1','z1').map(s=>s.id),['a']);
@@ -13,10 +13,13 @@ test('zone search finds associated merchant names, codes and goods',()=>{
  for(const q of ['seafood','a08','海湾','生蚝'])assert.equal(matchesMapQuery(area,q,shops),true);
  assert.equal(matchesMapQuery(area,'蔬菜',shops),false);
 });
-test('reference areas remain within the original drawing and carry no merchant bindings',()=>{
+test('redrawn areas stay in their own plan and never assign merchants',()=>{
  assert.equal(new Set(referenceAreas.map(a=>a.id)).size,referenceAreas.length);
- assert.equal(referenceAreas.filter(a=>!a.facility).length,22);
- for(const a of referenceAreas){assert.equal(a.floorId,undefined);for(const b of a.boxes){assert.ok(b.x>=0&&b.y>=0&&b.width>0&&b.height>0);assert.ok(b.x+b.width<=referencePlan.width&&b.y+b.height<=referencePlan.height);}}
+ for(const a of referenceAreas){assert.equal(a.floorId,undefined);assert.ok(mapFamilies.some(f=>f.id===a.family));for(const b of a.boxes){const plan=b.plan==='annex'?annexPlan:referencePlan;assert.ok(b.x>=0&&b.y>=0&&b.width>0&&b.height>0);assert.ok(b.x+b.width<=plan.width&&b.y+b.height<=plan.height,a.id);}}
+});
+test('customer terms find relevant categories without requiring engineering names',()=>{
+ for(const [q,id]of [['青菜','vegetables'],['虾','seafood'],['豆腐','tofu'],['排骨','pork'],['轮椅','access']])assert.ok(matchesMapQuery(referenceAreas.find(a=>a.id===id),q));
+ for(const id of ['dry','sundries','other'])assert.equal(referenceAreas.find(a=>a.id===id).boxes.length,0,'unconfirmed locations must remain unmapped');
 });
 test('fitting preserves drawing bounds across square and wide screens',()=>{
  const bounds={x:130,y:120,width:1575,height:865};
