@@ -220,6 +220,50 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .knowledge-item{display:flex;gap:16px;align-items:stretch;padding:14px}
 .knowledge-item .seafood-photo{width:38%;flex-shrink:0;aspect-ratio:3/4;align-self:center;object-fit:cover;border-radius:1.25rem;background:var(--stone);min-height:0}
 .knowledge-item .photo-empty.seafood-photo{display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* ===== 首页沉浸式改版：媒体背景轮播 + 顶栏 + 底部四按键统一框 (2026-10-22) =====
+   按键沿用 .wayfinding 外观与浮动效果，仅改布局：背景层 + 顶部信息条 + 底部 dock */
+.home-media{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--stone)}
+.home-media-item{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1s ease}
+.home-media-item.shown{opacity:1}
+body:not(.home-view) .home-media{display:none}
+.home-view .produce-banner{display:none}
+.home-view .masthead,.home-view .category-bar,.home-view .footer{display:none}
+.home-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
+.home-view .market-app{padding:0}
+.home-stage{position:relative;height:100%;min-height:0}
+.home-topbar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:2vw;padding:1.4vh 2.2vw;background:rgba(253,252,248,.45);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.62);box-shadow:0 10px 32px -16px rgba(44,44,36,.25)}
+.home-brand{font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(26px,2.2vw,44px);letter-spacing:.08em;line-height:1.1}
+.home-brand .en{font-family:var(--en-font);font-size:.52em;letter-spacing:.32em;color:var(--muted);opacity:1}
+.topbar-meta{display:flex;align-items:center;gap:1vw;color:var(--ink);font-size:clamp(15px,1.25vw,24px);white-space:nowrap}
+.topbar-meta .en{font-family:var(--en-font);font-size:.72em;color:var(--muted)}
+.meta-dot{color:var(--muted)}
+.home-dock{position:absolute;left:0;right:0;bottom:0;z-index:2;margin:0;background:rgba(253,252,248,.5);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border:0;border-top:1px solid rgba(255,255,255,.62);border-radius:0;padding:1.6vh 2.8vw 1.8vh;box-shadow:0 -10px 32px -16px rgba(44,44,36,.25)}
+.home-dock h2{margin:0 0 1.4vh;text-align:center;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(24px,2vw,40px);letter-spacing:-.02em}
+.home-dock h2 .en{display:block;font-family:var(--en-font);font-size:.42em;letter-spacing:.24em;color:var(--muted);margin-top:.5vh;opacity:1}
+.home-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1vw}
+/* 四按键默认隐形无框：按下(:active)/键盘聚焦时才凸显毛玻璃框；高度收紧至包住内容 */
+.home-actions .wayfinding{background:transparent;border:1px solid transparent;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none;min-height:0;padding:.8vh .9vw;transition:transform .3s ease,box-shadow .3s ease,background .25s ease,border-color .25s ease}
+.home-actions .wayfinding:hover{transform:none;box-shadow:none}
+.home-actions .wayfinding:active,.home-actions .wayfinding:focus-visible{background:rgba(253,252,248,.5);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border-color:rgba(255,255,255,.62);box-shadow:0 8px 28px -10px rgba(44,44,36,.25)}
+/* 按键文字居中（前方图标已删） */
+.home-actions .wayfinding .action-copy{display:flex;justify-content:center}
+.home-actions .wayfinding .action-copy .bi{align-items:center;text-align:center}
+/* kiosk 竖屏（约0.985:1）：四按键一行排开，按比例缩放按键内容以适应 1/4 宽度 */
+@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+ .home-topbar{padding:1.2vh 1.8vw}
+ .home-dock{padding:1.4vh 2.2vw 1.6vh}
+ .home-dock h2{font-size:2.5vw;margin-bottom:1.2vh}
+ .home-actions{gap:1vw}
+ .home-actions .wayfinding{height:auto;gap:.8vw;padding:.7vh .8vw;border-radius:1.2vw}
+ .home-actions .wayfinding>.art-icon{width:5.2vw;height:5.2vw;margin:-.4vw}
+ .home-actions .wayfinding .action-title{font-size:2.2vw}
+ .home-actions .wayfinding .arrow{width:1.6vw;height:1.6vw}
+}
+@media (max-width:600px){
+ .home-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .home-topbar{flex-wrap:wrap}
+}
 .knowledge-item .seafood-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:10px}
 .knowledge-item .seafood-copy h3{margin:0 0 4px}
 .knowledge-item .seafood-copy h4{margin:0;color:var(--muted);font-size:.72em;letter-spacing:.05em}
@@ -240,6 +284,10 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
    不用绝对定位：不遮挡滚动内容，展开地图时随主面板被全屏层覆盖（Escape 先收起）。 */
 .floating-back{margin-top:auto;align-self:flex-end;flex-shrink:0;gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
 .floating-back .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
+/* 次级页底部操作行：左"首页"直达 / 右"返回"上一级 (2026-10-22) */
+.section-footer{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding-top:.8vh;gap:1vw}
+.floating-home{gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
+.floating-home .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
 
 /* ===== 顶部食材剪影横幅背景（2026-10-19 用户提供图）=====
    整张原图按原始比例（1920×640 = 3:1）铺满页面宽度，
