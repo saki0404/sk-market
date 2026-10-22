@@ -285,7 +285,28 @@ body:not(.home-view) .home-media{display:none}
 .floating-back{margin-top:auto;align-self:flex-end;flex-shrink:0;gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
 .floating-back .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
 /* 次级页底部操作行：左"首页"直达 / 右"返回"上一级 (2026-10-22) */
-.section-footer{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding-top:.8vh;gap:1vw}
+.section-footer{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding-top:.8vh;gap:1vw;margin-top:auto}
+.section-view>.empty-state{flex:1;min-height:0;height:auto}
+.section-footer .floating-back{margin-top:0}
+.feedback-view .category-bar{display:none}
+/* 地图页：抵消 market-map.css 对返回键的缩小规则，保证与首页键同款对齐 */
+.map-view .section-footer .floating-back{margin-top:0;min-height:48px;padding:12px 18px;font-size:clamp(16px,1.2vw,23px)}
+
+/* ===== 消费反馈页：沉浸式玻璃框架 + 爱心词云 + 三入口 (2026-10-22) ===== */
+.feedback-view .masthead,.feedback-view .category-bar,.feedback-view .footer,.feedback-view .produce-banner{display:none}
+.satisfaction-view .category-bar,.comment-view .category-bar,.impression-view .category-bar{display:none}
+.feedback-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
+.feedback-view .market-app{padding:0}
+.feedback-stage{position:relative;height:100%;min-height:0}
+.feedback-cloud{position:absolute;top:9vh;bottom:17vh;left:0;right:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.feedback-cloud img{max-width:72%;max-height:100%;object-fit:contain}
+.feedback-dock{display:flex;align-items:center;gap:1vw}
+.feedback-actions{flex:1;display:flex;justify-content:center;gap:1.2vw}
+.fb-btn{display:inline-flex;align-items:center;justify-content:center;background:rgba(253,252,248,.45);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:999px;padding:1.6vh 2.4vw;font-size:clamp(18px,1.8vw,34px);font-family:var(--font-zh-serif);color:var(--ink);box-shadow:0 8px 26px -10px rgba(44,44,36,.25);transition:transform .3s ease,box-shadow .3s ease;white-space:nowrap;cursor:pointer}
+.fb-btn:hover{transform:translateY(-4px);box-shadow:0 18px 38px -12px rgba(44,44,36,.3)}
+.fb-btn:active{transform:scale(.97)}
+.fb-btn .bi{align-items:center;text-align:center;min-width:0}
+.fb-btn .bi .en{font-size:.5em;letter-spacing:.14em;opacity:.8;margin-top:.3em}
 .floating-home{gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
 .floating-home .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
 

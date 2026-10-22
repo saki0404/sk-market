@@ -29,3 +29,5 @@
 - `assets/images/produce-silhouette-banner.jpg`：用户2026-10-19在本线程提供的“稀疏食材剪影图”（深绿食材剪影 + 浅色底，1920×640，3:1；当晚第二版，替换了最初的“疏朗食材剪影横幅”）。仅作首页顶部装饰背景，`index.html` 的 `.produce-banner` 按原始 3:1 比例整图铺满页面宽度，CSS mask 使不透明度自顶部 50% 渐隐至图片底部 0；`pointer-events:none` 不参与交互。非生成图、非商户资料。
 
 - `assets/images/home-bg-market.png`（2026-10-22，用户 10-22 提供的《菜市场里的邻里温情.png》实拍图替换 AI 示意图，1245x1263）：首页沉浸式媒体轮播默认素材；正式素材可由后台通过 `ENTRANCE_CONFIG.homeMedia`（`[{type:"image"|"video",src:"..."}]`）下发，图片每张 7 秒、视频播完自动轮播。
+
+- `assets/images/shekou-wordcloud.png`（2026-10-22）：用户提供的《蛇口爱心词云_透明底.png》（1920×1408），剪贴板传入为 JPG 白底，已用 PIL 恢复透明通道（白色→alpha 0，225-252 线性过渡）。用于消费反馈页背景装饰，位于顶部玻璃条之下、底部玻璃条之上，`pointer-events:none` 不参与交互。
