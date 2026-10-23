@@ -345,6 +345,10 @@ body:not(.home-view) .home-media{display:none}
 .fb-heart.filled path{fill:#C94F4F;stroke:#B23E3E}
 .fb-heart:hover svg{transform:scale(1.12)}
 .fb-heart:focus-visible{outline:3px solid rgba(93,112,82,.4);outline-offset:2px}
+/* 满意度页：三行评分上方的页面标题 */
+.fb-sub-title{flex-shrink:0;text-align:center;margin-bottom:.4vh}
+.fb-sub-title .bi{align-items:center;text-align:center;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(26px,2.8vw,54px);font-weight:900;letter-spacing:.1em;line-height:1.25}
+.fb-sub-title .bi .en{display:block;font-family:var(--en-font);font-size:.42em;font-weight:400;letter-spacing:.24em;color:var(--muted);margin-top:.35em;opacity:1}
 /* 提交按钮：复用玻璃按键样式，独立成行居中 */
 .fb-submit{align-self:center;padding:1.4vh 4.5vw;margin-top:.2vh}
 /* 未填写提示：绝对定位在提交键与底部条之间的空隙，不占布局 */
@@ -353,6 +357,12 @@ body:not(.home-view) .home-media{display:none}
 .fb-tip .bi{background:rgba(253,252,248,.85);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:999px;padding:1vh 2.6vw;box-shadow:0 8px 26px -10px rgba(44,44,36,.3);font-family:var(--font-zh-serif);color:#B26640;font-size:clamp(16px,1.7vw,32px);letter-spacing:.06em}
 .fb-tip .bi{align-items:center;text-align:center}
 .fb-tip .bi .en{font-size:.5em;color:var(--muted);letter-spacing:.12em;margin-top:.2em;opacity:1}
+/* ===== 反馈意见页：真实输入框（多平台系统键盘接入点，2026-10-23 三版：与词云等宽居中）===== */
+.fb-comment-box{width:49.1vh;max-width:62%;min-height:34vh;max-height:40vh;align-self:center;flex-shrink:0;background:rgba(253,252,248,.55);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:1.4rem;padding:1.4vh 1.2vw;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(16px,1.6vw,30px);line-height:1.55;box-shadow:0 8px 26px -12px rgba(44,44,36,.2);resize:none}
+.fb-comment-box:focus{outline:3px solid rgba(93,112,82,.35);border-color:rgba(93,112,82,.5)}
+.fb-comment-box::placeholder{color:var(--muted);opacity:.85}
+/* 反馈意见页专属：内容整体上移（给底部弹出的系统键盘留空间） */
+.comment-view .fb-sub-body,.impression-view .fb-sub-body{padding-bottom:11vh}
 /* 感谢反馈：提交后的大字提示 */
 .fb-thanks{display:flex;align-items:center;justify-content:center;min-height:30vh}
 .fb-thanks .bi{align-items:center;text-align:center;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(34px,4.2vw,80px);letter-spacing:.12em;line-height:1.3}
