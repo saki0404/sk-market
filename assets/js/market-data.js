@@ -11,7 +11,7 @@ export function validateSnapshot(s, marketId) {
   const cats = new Set(s.categories.map(c => c.id));
   for (const c of s.categories) if (!strings(c,['name','nameEn'])) fail();
   for (const row of s.stalls) {
-    if (!strings(row,['name','code','nameEn','intro','introEn','message','messageEn','categoryId','floorId','zoneId']) || !cats.has(row.categoryId) || !Array.isArray(row.goods) || !row.goods.every(g => typeof g === 'string') || !Array.isArray(row.photos) || row.photos.length > 2) fail();
+    if (!strings(row,['name','code','nameEn','intro','introEn','message','messageEn','categoryId','floorId']) || ('zoneId' in row && typeof row.zoneId !== 'string') || !cats.has(row.categoryId) || !Array.isArray(row.goods) || !row.goods.every(g => typeof g === 'string') || !Array.isArray(row.photos) || row.photos.length > 2) fail();
     for (const a of row.photos) if (!object(a) || !strings(a,['id','url','sha256','mimeType']) || !allowedMime.has(a.mimeType) || !/^[a-f0-9]{64}$/i.test(a.sha256)) fail();
   }
   for (const f of s.floors) {
