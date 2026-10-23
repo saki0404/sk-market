@@ -6,6 +6,10 @@ assert.ok(!existsSync('dist/preview-square.html'),'development preview frame mus
 assert.ok(!files.some(f=>f.startsWith('design-')),'design-only images must not ship');
 assert.ok(!files.some(f=>f.includes('shekou-floor-1-reference')),'engineering reference photo must not ship as customer map');
 const js=files.filter(f=>f.endsWith('.js')).map(f=>readFileSync('dist/assets/'+f,'utf8')).join('\n');
+const homeBackground=files.find(f=>/^home-bg-market-.+\.png$/.test(f));
+assert.ok(homeBackground,'default home background must ship in the production bundle');
+assert.ok(readFileSync('dist/assets/'+homeBackground).equals(readFileSync('assets/images/home-bg-market.png')),'default home background must retain the original supplied image');
+assert.ok(js.includes(homeBackground)&&!js.includes('./assets/images/home-bg-market.png'),'home media must use the built asset URL');
 for(const sample of ['水产商户示意','design-preview','design-seafood'])assert.ok(!js.includes(sample),'preview fixtures must not ship: '+sample);
 const worker=readFileSync('dist/sw.js','utf8');
 assert.ok(!worker.includes('/* BUILD_ASSETS */'),'offline asset list must be injected');

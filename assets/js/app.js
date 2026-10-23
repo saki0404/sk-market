@@ -1,6 +1,7 @@
 import {createMarketMap} from './market-map.js';
 import {spotlightGroups,currentMerchant,nextMerchant} from './spotlight.js';
 import {createMarketClient} from './market-data.js';
+import defaultHomeMedia from '../images/home-bg-market.png';
 const iconFiles=import.meta.glob('../icons/*.svg',{eager:true,query:'?url',import:'default'});
 const artFiles=import.meta.glob('../images/icon-*.png',{eager:true,query:'?url',import:'default'});
 const artNames={storefront:'shop','map-trifold':'map',fish:'seafood',leaf:'vegetables',egg:'meat',grains:'grain','cooking-pot':'condiments',guide:'guide'};
@@ -15,7 +16,7 @@ let data={categories:[],stalls:[],floors:[],encyclopedia:[]},view='home',fromVie
 const isPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('preview')==='design';
 const ROTATION_MS=3000;
 /* 首页媒体背景轮播：图片每张 7s，视频播完自动切下一张；素材可由后台通过 ENTRANCE_CONFIG.homeMedia 下发（type: image|video, src: 地址） */
-const HOME_MEDIA=Array.isArray(window.ENTRANCE_CONFIG?.homeMedia)&&window.ENTRANCE_CONFIG.homeMedia.length?window.ENTRANCE_CONFIG.homeMedia:[{type:'image',src:'./assets/images/home-bg-market.png'}];
+const HOME_MEDIA=Array.isArray(window.ENTRANCE_CONFIG?.homeMedia)&&window.ENTRANCE_CONFIG.homeMedia.length?window.ENTRANCE_CONFIG.homeMedia:[{type:'image',src:defaultHomeMedia}];
 let hmIndex=0,hmTimer=null;
 function homeMediaAdvance(){
  const host=$('homeMedia');if(!host)return;
