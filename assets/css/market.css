@@ -292,6 +292,23 @@ body:not(.home-view) .home-media{display:none}
 /* 地图页：抵消 market-map.css 对返回键的缩小规则，保证与首页键同款对齐 */
 .map-view .section-footer .floating-back{margin-top:0;min-height:48px;padding:12px 18px;font-size:clamp(16px,1.2vw,23px)}
 
+/* ===== 全局玻璃顶条：所有页面常驻"蛇口市场 + 日期天气" (2026-10-23) ===== */
+.global-topbar{display:flex;align-items:center;justify-content:space-between;gap:2vw;flex-shrink:0;margin:0 -2.8vw;padding:2vh 2.2vw;background:rgba(253,252,248,.45);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.62);box-shadow:0 10px 32px -16px rgba(44,44,36,.25)}
+.home-view .global-topbar,.feedback-view .global-topbar{margin:0}
+.global-topbar .brand{display:inline-flex;align-items:baseline;gap:.8vw;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.global-topbar .brand h1{margin:0;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(36px,3.6vw,72px);letter-spacing:.08em;line-height:1.1;font-weight:900}
+.global-topbar .brand>span{font-family:var(--en-font);font-size:clamp(13px,1.2vw,24px);letter-spacing:.32em;color:var(--muted)}
+.market-app .masthead{display:none}
+/* 抵消 market-map.css 的 .map-view .brand h1 大字号规则，保持顶条各页一致 */
+.map-view .global-topbar .brand h1{font-size:clamp(36px,3.6vw,72px)}
+.global-topbar:focus-within{outline:none}
+.global-topbar .brand:focus-visible{outline:3px solid rgba(93,112,82,.4);outline-offset:3px;border-radius:8px}
+
+/* 找商户页：全局分类条隐藏（页面内已渲染局部条），搜索栏已删除 (2026-10-23) */
+.shops-view #categoryBar{display:none}
+.local-cat-bar{flex-shrink:0;margin-top:.6vh}
+.local-cat-bar .category-item+.category-item{border-left:1px solid var(--line)}
+
 /* ===== 消费反馈页：沉浸式玻璃框架 + 爱心词云 + 三入口 (2026-10-22) ===== */
 .feedback-view .masthead,.feedback-view .category-bar,.feedback-view .footer,.feedback-view .produce-banner{display:none}
 .satisfaction-view .category-bar,.comment-view .category-bar,.impression-view .category-bar{display:none}
@@ -307,6 +324,47 @@ body:not(.home-view) .home-media{display:none}
 .fb-btn:active{transform:scale(.97)}
 .fb-btn .bi{align-items:center;text-align:center;min-width:0}
 .fb-btn .bi .en{font-size:.5em;letter-spacing:.14em;opacity:.8;margin-top:.3em}
+
+/* ===== 反馈三个子页：词云贴顶（顶条下端）+ 满意度爱心评分 (2026-10-23) ===== */
+.satisfaction-view .main-surface,.comment-view .main-surface,.impression-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
+.satisfaction-view .market-app,.comment-view .market-app,.impression-view .market-app{padding:0}
+.fb-sub-stage{position:relative;height:100%;min-height:0;display:flex;flex-direction:column}
+.fb-sub-stage .feedback-cloud{position:relative;top:auto;bottom:auto;flex:0 0 auto;height:40vh;min-height:0;padding-top:1vh}
+.fb-sub-stage .feedback-cloud img{max-height:36vh;max-width:62%}
+.fb-sub-body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:1.4vh;padding:0 5vw 10.2vh}
+.fb-sub-stage .feedback-dock{justify-content:space-between}
+.fb-sub-body .empty-state{flex:0 0 auto;min-height:0;height:auto;padding:2vh 4vw}
+/* 爱心评分行：左标签 + 右五颗爱心（点第 n 颗亮前 n 颗，再点同档清空） */
+.fb-rating-row{display:flex;align-items:center;justify-content:space-between;gap:2vw;background:rgba(253,252,248,.55);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:999px;padding:1vh 2.6vw;box-shadow:0 8px 26px -12px rgba(44,44,36,.2)}
+.fb-rating-label{font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(17px,1.75vw,34px);line-height:1.2}
+.fb-rating-label .en{font-family:var(--en-font);font-size:.5em;letter-spacing:.1em;color:var(--muted);opacity:.9}
+.fb-hearts{display:flex;gap:.7vw;flex-shrink:0}
+.fb-heart{background:none;border:0;padding:0;cursor:pointer;line-height:0;border-radius:50%}
+.fb-heart svg{width:clamp(32px,4.4vh,66px);height:clamp(32px,4.4vh,66px);display:block;transition:transform .2s ease}
+.fb-heart path{fill:#E2D9CB;stroke:#CBBFA9;stroke-width:.5;transition:fill .25s ease}
+.fb-heart.filled path{fill:#C94F4F;stroke:#B23E3E}
+.fb-heart:hover svg{transform:scale(1.12)}
+.fb-heart:focus-visible{outline:3px solid rgba(93,112,82,.4);outline-offset:2px}
+/* 提交按钮：复用玻璃按键样式，独立成行居中 */
+.fb-submit{align-self:center;padding:1.4vh 4.5vw;margin-top:.2vh}
+/* 未填写提示：绝对定位在提交键与底部条之间的空隙，不占布局 */
+.fb-sub-body{position:relative}
+.fb-tip{position:absolute;left:0;right:0;bottom:10.6vh;display:flex;justify-content:center;z-index:3}
+.fb-tip .bi{background:rgba(253,252,248,.85);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:999px;padding:1vh 2.6vw;box-shadow:0 8px 26px -10px rgba(44,44,36,.3);font-family:var(--font-zh-serif);color:#B26640;font-size:clamp(16px,1.7vw,32px);letter-spacing:.06em}
+.fb-tip .bi{align-items:center;text-align:center}
+.fb-tip .bi .en{font-size:.5em;color:var(--muted);letter-spacing:.12em;margin-top:.2em;opacity:1}
+/* 感谢反馈：提交后的大字提示 */
+.fb-thanks{display:flex;align-items:center;justify-content:center;min-height:30vh}
+.fb-thanks .bi{align-items:center;text-align:center;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(34px,4.2vw,80px);letter-spacing:.12em;line-height:1.3}
+.fb-thanks .bi .en{display:block;font-family:var(--en-font);font-size:.4em;letter-spacing:.2em;color:var(--muted);margin-top:.6em;opacity:1}
+/* 三个反馈子页：与反馈主页同款沉浸式（隐藏常规框架、透明主面板） */
+.satisfaction-view .masthead,.comment-view .masthead,.impression-view .masthead,
+.satisfaction-view .category-bar,.comment-view .category-bar,.impression-view .category-bar,
+.satisfaction-view .footer,.comment-view .footer,.impression-view .footer,
+.satisfaction-view .produce-banner,.comment-view .produce-banner,.impression-view .produce-banner{display:none}
+.satisfaction-view .main-surface,.comment-view .main-surface,.impression-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
+.satisfaction-view .market-app,.comment-view .market-app,.impression-view .market-app{padding:0}
+.satisfaction-view .global-topbar,.comment-view .global-topbar,.impression-view .global-topbar{margin:0}
 .floating-home{gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
 .floating-home .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
 

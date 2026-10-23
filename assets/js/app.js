@@ -82,26 +82,18 @@ function card(stall,feature=false){const b=el('button','',feature?'shop-feature'
 function action(zhT,enT,symbol,callback,primary=false){const b=el('button','','wayfinding'+(primary?' primary':''));b.type='button';const copy=el('span','','action-copy');const title=el('span','','action-title');title.append(bi(zhT,enT));copy.append(title);b.append(copy,icon('arrow-right','arrow'));b.onclick=callback;return b;}
 function home(){
  const stage=el('div','','home-stage');
- const bar=el('div','','home-topbar');
- const brand=el('div','','home-brand');brand.append(bi('蛇口市场','SHEKOU MARKET'));
- const meta=el('div','','topbar-meta');
- const dateEl=el('time','','home-date');dateEl.id='homeDate';
- const weather=el('span','','home-weather');weather.append(el('span','26°C · 多云'),el('span','Cloudy · 26°C','en'));
- meta.append(dateEl,el('span','·','meta-dot'),weather);
- bar.append(brand,meta);
  const dock=el('div','','home-dock');
  const h2=el('h2');h2.append(bi('逛市场，从这里开始','Start your market journey here','center'));
  const actions=el('div','','home-actions');
  actions.append(action('海鲜图鉴','Seafood Guide',null,()=>navigate('knowledge')),action('看地图','Market map',null,()=>navigate('map')),action('找商户','Find shops',null,()=>navigate('shops')),action('消费反馈','Feedback',null,()=>navigate('feedback')));
  dock.append(h2,actions);
- stage.append(bar,dock);
- clock();
+ stage.append(dock);
  return stage;
 }
 function section(title,back=()=>navigate(fromView),en=''){const root=el('section','','section-view'),head=el('div','','section-heading'),h2=el('h2');h2.append(bi(title,en));head.append(h2);const backBtn=button(bi('返回','Back'),back,'back-button floating-back','arrow-left');root.append(head);return {root,head,backBtn};}
 function homeFooter(backBtn){const homeBtn=button(bi('首页','Home'),()=>navigate('home'),'back-button floating-home','house');const footer=el('div','','section-footer');footer.append(homeBtn,backBtn);return footer;}
 function filteredStalls(){const term=query.trim().toLocaleLowerCase();return data.stalls.filter(s=>(!category||s.categoryId===category)&&(!term||[s.name,s.nameEn,s.code,s.intro,...s.goods].some(v=>v.toLocaleLowerCase().includes(term))));}
-function shopList(){const cat=data.categories.find(c=>c.id===category);const {root,head,backBtn}=section(cat?.name||'全部商户',undefined,cat?.nameEn||'All shops');if(category)head.append(button(bi('全部商户','All shops'),()=>navigate('shops',{category:''})));const search=el('label','','search');search.append(icon('magnifying-glass'));const input=el('input');input.type='search';input.placeholder='搜索店名、编号或品类 Search name / code / goods';input.setAttribute('aria-label','搜索店名、编号或品类');input.value=query;search.append(input);head.append(search);const grid=el('div','','shop-grid');function results(){grid.replaceChildren();const rows=filteredStalls();if(rows.length)grid.append(...rows.map(s=>card(s)));else grid.append(empty(bi(query?'没有找到相关商户':'暂无已发布商户',query?'No matching shops':'No published shops yet'),bi(query?'试试其他店名、摊位编号或经营品类。':'该分类有新的公开资料后，会显示在这里。',query?'Try another name, stall code or category.':'Listings will appear here once new public info is released.')));}input.oninput=()=>{query=input.value;lastAction=Date.now();results();};results();root.append(grid,homeFooter(backBtn));return root;}
+function shopList(){const cat=data.categories.find(c=>c.id===category);const {root,head,backBtn}=section(cat?.name||'全部商户',undefined,cat?.nameEn||'All shops');if(category)head.append(button(bi('全部商户','All shops'),()=>navigate('shops',{category:''})));const grid=el('div','','shop-grid');const bar=el('nav','','category-bar local-cat-bar');if(!data.categories.length)bar.append(bi('商户分类将在资料发布后显示','Categories will appear once published','category-placeholder'));for(const c of data.categories){const b=button(c.nameEn?bi(c.name,c.nameEn):c.name,()=>navigate('shops',{category:c.id}),'category-item'+(category===c.id?' selected':''),categoryIcon(c));b.setAttribute('aria-pressed',String(category===c.id));bar.append(b);}function results(){grid.replaceChildren();const rows=filteredStalls();if(rows.length)grid.append(...rows.map(s=>card(s)));else grid.append(empty(bi('暂无已发布商户','No published shops yet'),bi('该分类有新的公开资料后，会显示在这里。','Listings will appear here once new public info is released.')));}results();root.append(grid,bar,homeFooter(backBtn));return root;}
 function details(){
  const s=data.stalls.find(x=>x.id===selected);
  if(!s){view='shops';return shopList();}
@@ -139,9 +131,6 @@ function marketMap(){
 function knowledge(){const {root,backBtn}=section('海鲜图鉴',undefined,'Seafood guide'),list=el('div','','knowledge-list');const labels=[['产地','Origin','origin'],['怎么吃','Cooking ideas','cooking'],['特点','Features','features']];const placeholder=()=>{const p=el('div','','photo-empty seafood-photo');p.append(icon('fish'),bi('暂无图片','No photo yet'));return p;};for(const k of data.encyclopedia){const item=el('article','','knowledge-item');const asset=k.photos?.[0];if(asset?.localUrl){const img=el('img','','seafood-photo');img.src=asset.localUrl;img.alt=k.name+'图片';img.addEventListener('error',()=>img.replaceWith(placeholder()),{once:true});item.append(img);}else item.append(placeholder());const copy=el('div','','seafood-copy');const h3=el('h3');h3.append(bi(k.name,k.nameEn||''));copy.append(h3);for(const [label,en,key]of labels){const h4=el('h4');h4.append(bi(label,en));copy.append(h4,el('p',k[key]||'暂无资料 No info yet'));}item.append(copy);list.append(item);}if(!list.children.length)list.append(empty(bi('海鲜图鉴待完善','Seafood guide coming soon'),bi('各类海鲜的介绍和图片将在管理处发布后显示在这里。','Seafood profiles and photos will appear here once published by the market office.'),'books'));root.append(list,homeFooter(backBtn));return root;}
 function feedback(){
  const stage=el('div','','feedback-stage');
- const bar=el('div','','home-topbar');
- const brand=el('div','','home-brand');brand.append(bi('消费反馈','Feedback'));
- bar.append(brand);
  const cloud=el('div','','feedback-cloud');
  const img=el('img','','feedback-cloud-img');img.src='./assets/images/shekou-wordcloud.png';img.alt='蛇口爱心词云：烟火气、慢节奏、松弛感、自在';
  cloud.append(img);
@@ -151,14 +140,43 @@ function feedback(){
  const actions=el('div','','feedback-actions');
  actions.append(button(bi('满意度','Satisfaction'),()=>navigate('satisfaction'),'fb-btn'),button(bi('反馈意见','Your feedback'),()=>navigate('comment'),'fb-btn'),button(bi('蛇口印象','Shekou vibes'),()=>navigate('impression'),'fb-btn'));
  dock.append(homeBtn,actions,backBtn);
- stage.append(bar,cloud,dock);
+ stage.append(cloud,dock);
  return stage;
 }
-function comingSoon(title,en,msg){const {root,backBtn}=section(title,undefined,en);root.append(empty(bi('页面建设中','Coming soon'),bi(msg,'This page is coming soon.'),'books'),homeFooter(backBtn));return root;}
-function satisfaction(){return comingSoon('满意度','Satisfaction','满意度调查稍后开放，敬请期待。');}
-function comment(){return comingSoon('反馈意见','Your feedback','反馈意见通道稍后开放，敬请期待。');}
-function impression(){return comingSoon('蛇口印象','Shekou vibes','蛇口印象展示稍后开放，敬请期待。');}
-function render(){document.body.classList.toggle('map-view',view==='map');document.body.classList.toggle('knowledge-view',view==='knowledge');document.body.classList.toggle('home-view',view==='home');document.body.classList.toggle('feedback-view',view==='feedback');document.body.classList.toggle('satisfaction-view',view==='satisfaction');document.body.classList.toggle('comment-view',view==='comment');document.body.classList.toggle('impression-view',view==='impression');disposeMap?.();disposeMap=null;clearTimeout(rotationTimer);if(view==='home')startHomeMedia();else stopHomeMedia();const active=document.activeElement;const searchFocused=active?.tagName==='INPUT';const cursor=searchFocused?active.selectionStart:null;$('marketName').textContent=data.market?.name||'蛇口市场';$('main').replaceChildren(({home,shops:shopList,detail:details,map:marketMap,knowledge,feedback,satisfaction,comment,impression}[view]||home)());renderBar();if(searchFocused&&view==='shops'){const input=$('main').querySelector('input');input.focus();if(input.type==='text')input.setSelectionRange(cursor,cursor);}scheduleRotation();}
+function heartRow(zh,en,store,key){
+ const row=el('div','','fb-rating-row');
+ const label=bi(zh,en);label.classList.add('fb-rating-label');
+ const hearts=el('div','','fb-hearts');
+ const filled=[false,false,false,false,false];
+ const paint=()=>{[...hearts.children].forEach((h,i)=>h.classList.toggle('filled',filled[i]))};
+ for(let i=0;i<5;i++){
+  const h=el('button','','fb-heart');h.type='button';h.setAttribute('aria-label',`${zh} ${i+1}/5`);
+  h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,21.35l-1.45-1.32C5.4,15.36,2,12.28,2,8.5 2,5.42,4.42,3,7.5,3c1.74,0,3.41,0.81,4.5,2.09C13.09,3.81,14.76,3,16.5,3 19.58,3,22,5.42,22,8.5c0,3.78-3.4,6.86-8.55,11.54L12,21.35z"/></svg>';
+  h.onclick=()=>{const target=i+1;let count=0;if(filled.filter(Boolean).length===target){filled.fill(false);}else{for(let k=0;k<5;k++)filled[k]=k<target;count=target;}if(store)store[key]=count;lastAction=Date.now();paint();};
+  hearts.append(h);
+ }
+ paint();
+ row.append(label,hearts);
+ return row;
+}
+function fbSubPage(build){
+ const stage=el('div','','fb-sub-stage');
+ const cloud=el('div','','feedback-cloud');
+ const img=el('img','','feedback-cloud-img');img.src='./assets/images/shekou-wordcloud.png';img.alt='蛇口爱心词云：烟火气、慢节奏、松弛感、自在';
+ cloud.append(img);
+ const body=el('div','','fb-sub-body');
+ build(body);
+ const dock=el('div','','home-dock feedback-dock');
+ const homeBtn=button(bi('首页','Home'),()=>navigate('home'),'back-button floating-home','house');
+ const backBtn=button(bi('返回','Back'),()=>navigate('feedback'),'back-button floating-back','arrow-left');
+ dock.append(homeBtn,backBtn);
+ stage.append(cloud,body,dock);
+ return stage;
+}
+function satisfaction(){const ratings={env:0,merchant:0,staff:0};return fbSubPage(body=>{body.append(heartRow('环境','Environment',ratings,'env'),heartRow('商户服务态度','Merchant service',ratings,'merchant'),heartRow('市场工作人员服务态度','Market staff service',ratings,'staff'));const tip=el('div','','fb-tip');tip.append(bi('请填写后再提交哦','Please tap hearts before submitting','center'));tip.hidden=true;let tipTimer;const submit=el('button','','fb-btn fb-submit');submit.type='button';submit.append(bi('提交','Submit'));submit.onclick=async()=>{lastAction=Date.now();if(!ratings.env&&!ratings.merchant&&!ratings.staff){tip.hidden=false;clearTimeout(tipTimer);tipTimer=setTimeout(()=>{tip.hidden=true;},3000);return;}try{await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'satisfaction',env:ratings.env,merchant:ratings.merchant,staff:ratings.staff})});}catch{/* 离线也不影响感谢流程 */}const thanks=el('div','','fb-thanks');thanks.append(bi('感谢您的反馈','Thanks for your feedback','center'));body.replaceChildren(thanks);setTimeout(()=>navigate('feedback'),2000);};body.append(submit,tip);});}
+function comment(){return fbSubPage(body=>{body.append(empty(bi('页面建设中','Coming soon'),bi('反馈意见通道稍后开放，敬请期待。','This page is coming soon.'),'books'));});}
+function impression(){return fbSubPage(body=>{body.append(empty(bi('页面建设中','Coming soon'),bi('蛇口印象展示稍后开放，敬请期待。','This page is coming soon.'),'books'));});}
+function render(){document.body.classList.toggle('map-view',view==='map');document.body.classList.toggle('knowledge-view',view==='knowledge');document.body.classList.toggle('home-view',view==='home');document.body.classList.toggle('feedback-view',view==='feedback');document.body.classList.toggle('shops-view',view==='shops');document.body.classList.toggle('satisfaction-view',view==='satisfaction');document.body.classList.toggle('comment-view',view==='comment');document.body.classList.toggle('impression-view',view==='impression');disposeMap?.();disposeMap=null;clearTimeout(rotationTimer);if(view==='home')startHomeMedia();else stopHomeMedia();$('marketName').textContent=data.market?.name||'蛇口市场';$('main').replaceChildren(({home,shops:shopList,detail:details,map:marketMap,knowledge,feedback,satisfaction,comment,impression}[view]||home)());renderBar();scheduleRotation();}
 $('brandHome').onclick=()=>navigate('home');for(const event of ['pointerdown','keydown','wheel'])document.addEventListener(event,()=>{lastAction=Date.now();},{passive:true});
 function clock(){const now=new Date();const zh=now.toLocaleDateString('zh-CN',{timeZone:'Asia/Shanghai',month:'long',day:'numeric',weekday:'long'});const en=now.toLocaleDateString('en-US',{timeZone:'Asia/Shanghai',month:'short',day:'numeric',weekday:'short'});const dt=$('dateText');dt.dateTime=now.toISOString();dt.replaceChildren(el('span',zh),' · ',el('span',en,'en'));const hd=$('homeDate');if(hd){hd.dateTime=now.toISOString();hd.replaceChildren(el('span',zh),' · ',el('span',en,'en'));}if(view!=='home'&&Date.now()-lastAction>120000)navigate('home');}clock();setInterval(clock,1000);
 render();
