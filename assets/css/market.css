@@ -285,7 +285,14 @@ body:not(.home-view) .home-media{display:none}
 .floating-back{margin-top:auto;align-self:flex-end;flex-shrink:0;gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
 .floating-back .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
 /* 次级页底部操作行：左"首页"直达 / 右"返回"上一级 (2026-10-22) */
+/* 次级页外层框：与顶条留出空隙不贴边，框高随之收窄；沉浸式页面(home/反馈系列)除外 */
+.market-app>#main{margin-top:2.5vh}
+.home-view .market-app>#main,.feedback-view .market-app>#main,
+.satisfaction-view .market-app>#main,.comment-view .market-app>#main,.impression-view .market-app>#main{margin-top:0}
 .section-footer{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding-top:.8vh;gap:1vw;margin-top:auto}
+/* 次级页内容居中容器：内容群垂直居中于顶条与底部按键行之间，内容多时可整体滚动 */
+.section-main{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:safe center;overflow:auto}
+.section-main .knowledge-list,.section-main .shop-grid{flex:0 1 auto;overflow:visible}
 .section-view>.empty-state{flex:1;min-height:0;height:auto}
 .section-footer .floating-back{margin-top:0}
 .feedback-view .category-bar{display:none}
@@ -389,3 +396,45 @@ body:not(.home-view) .home-media{display:none}
 @media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
   .welcome>div:first-child{padding:1.4vh 0}
 }
+
+/* ===== 次级页玻璃化 + 剪影散落背景 (2026-10-24) ===== */
+/* 图鉴/地图/找商户：外层白框隐去（背景透出米纸+剪影），框感交给内部玻璃件 */
+.knowledge-view .main-surface,.map-view .main-surface,.shops-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none}
+.knowledge-view .market-app,.map-view .market-app,.shops-view .market-app{position:relative}
+/* 剪影散落背景：素材已抠成单图透明底，多重 background 错落放置，整体半透明 */
+.knowledge-view .market-app::before,.map-view .market-app::before,.shops-view .market-app::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background:
+ url('../images/silhouettes/fish-green.png') no-repeat 4vw 16vh / 7vw auto,
+ url('../images/silhouettes/octopus-yellow.png') no-repeat 87vw 34vh / 8vw auto,
+ url('../images/silhouettes/veg-peach.png') no-repeat 90vw 9vh / 6vw auto,
+ url('../images/silhouettes/fish-red.png') no-repeat 84vw 60vh / 5.5vw auto,
+ url('../images/silhouettes/shell-yellow.png') no-repeat 3vw 55vh / 7vw auto,
+ url('../images/silhouettes/tomato-green.png') no-repeat 10vw 82vh / 6vw auto,
+ url('../images/silhouettes/shell-peach.png') no-repeat 46vw 12.5vh / 4vw auto,
+ url('../images/silhouettes/veg-green.png') no-repeat 42vw 84vh / 5vw auto,
+ url('../images/silhouettes/octopus-green.png') no-repeat 22vw 6vh / 5vw auto,
+ url('../images/silhouettes/fish-peach.png') no-repeat 68vw 7vh / 4vw auto,
+ url('../images/silhouettes/shell-red.png') no-repeat 58vw 88vh / 5vw auto,
+ url('../images/silhouettes/tomato-peach.png') no-repeat 14vw 36vh / 4vw auto}
+/* 玻璃件基础 token */
+.knowledge-view .section-heading,.map-view .section-heading,.shops-view .section-heading,
+.knowledge-view .knowledge-item,.shops-view .shop-card,.shops-view .local-cat-bar,
+.knowledge-view .empty-state,.shops-view .empty-state,
+.map-view .mall-search,.map-view .mall-top select,.map-view .mall-chip,.map-view .mall-result,
+.map-view .mall-panel,.map-view .mall-viewport,.map-view .mall-level{
+ background:rgba(253,252,248,.55);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);
+ border:1px solid rgba(255,255,255,.62);box-shadow:0 8px 26px -12px rgba(44,44,36,.2)}
+/* 标题药丸化：玻璃底 + 内边距 */
+.knowledge-view .section-heading,.map-view .section-heading,.shops-view .section-heading{padding:1.2vh 1.8vw;border-radius:1.6rem;align-self:flex-start;min-width:30%}
+/* 卡片：底色替换为玻璃（覆盖原有白/实色底） */
+.knowledge-view .knowledge-item{background:rgba(253,252,248,.55)}
+.shops-view .shop-card{background:rgba(253,252,248,.55)}
+.shops-view .category-bar.local-cat-bar{background:rgba(253,252,248,.55)}
+.knowledge-view .empty-state,.shops-view .empty-state{background:rgba(253,252,248,.45)}
+.map-view .mall-search{background:rgba(253,252,248,.55);border-color:rgba(255,255,255,.62)}
+.map-view .mall-top select{background:rgba(253,252,248,.55);border-color:rgba(255,255,255,.62)}
+.map-view .mall-chip,.map-view .mall-result{background:rgba(253,252,248,.55);border-color:rgba(255,255,255,.62)}
+.map-view .mall-chip[aria-pressed=true]{background:#214f40;border-color:#214f40}
+.map-view .mall-panel{background:rgba(253,252,248,.55);border-color:rgba(255,255,255,.62)}
+.map-view .mall-viewport{background:rgba(253,252,248,.4);border-color:rgba(255,255,255,.62)}
+.map-view .mall-level{background:rgba(253,252,248,.7)}
+.map-view .mall-guide.is-expanded{background:rgba(250,251,246,.92);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
