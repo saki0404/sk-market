@@ -401,8 +401,8 @@ body:not(.home-view) .home-media{display:none}
 /* 图鉴/地图/找商户：外层白框隐去（背景透出米纸+剪影），框感交给内部玻璃件 */
 .knowledge-view .main-surface,.map-view .main-surface,.shops-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none}
 .knowledge-view .market-app,.map-view .market-app,.shops-view .market-app{position:relative}
-/* 剪影散落背景：素材已抠成单图透明底，多重 background 错落放置，整体半透明 */
-.knowledge-view .market-app::before,.map-view .market-app::before,.shops-view .market-app::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background:
+/* 地图/找商户页：剪影散落背景（素材已抠成单图透明底，多重 background 错落放置，整体半透明） */
+.map-view .market-app::before,.shops-view .market-app::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background:
  url('../images/silhouettes/fish-green.png') no-repeat 4vw 16vh / 7vw auto,
  url('../images/silhouettes/octopus-yellow.png') no-repeat 87vw 34vh / 8vw auto,
  url('../images/silhouettes/veg-peach.png') no-repeat 90vw 9vh / 6vw auto,
@@ -415,6 +415,30 @@ body:not(.home-view) .home-media{display:none}
  url('../images/silhouettes/fish-peach.png') no-repeat 68vw 7vh / 4vw auto,
  url('../images/silhouettes/shell-red.png') no-repeat 58vw 88vh / 5vw auto,
  url('../images/silhouettes/tomato-peach.png') no-repeat 14vw 36vh / 4vw auto}
+/* 图鉴页专属：14 张海鲜和纸素材散落背景 */
+.knowledge-view .market-app::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background:
+ url('../images/seafood-art/sardine.png') no-repeat 6vw 9vh / 7vw auto,
+ url('../images/seafood-art/seabass.png') no-repeat 30vw 4vh / 6.5vw auto,
+ url('../images/seafood-art/squid.png') no-repeat 45vw 6vh / 4.5vw auto,
+ url('../images/seafood-art/mantis-shrimp.png') no-repeat 72vw 10vh / 8.5vw auto,
+ url('../images/seafood-art/whitebait.png') no-repeat 25vw 15vh / 6vw auto,
+ url('../images/seafood-art/octopus.png') no-repeat 87vw 22vh / 7vw auto,
+ url('../images/seafood-art/white-eel.png') no-repeat 2.5vw 34vh / 7.5vw auto,
+ url('../images/seafood-art/yellowfin.png') no-repeat 88vw 48vh / 6vw auto,
+ url('../images/seafood-art/grass-carp.png') no-repeat 3vw 58vh / 7vw auto,
+ url('../images/seafood-art/yellow-eel.png') no-repeat 86vw 74vh / 6.5vw auto,
+ url('../images/seafood-art/prawn.png') no-repeat 10vw 80vh / 7.5vw auto,
+ url('../images/seafood-art/pomfret.png') no-repeat 38vw 84vh / 5.5vw auto,
+ url('../images/seafood-art/coral-trout.png') no-repeat 60vw 80vh / 7vw auto,
+ url('../images/seafood-art/crab.png') no-repeat 82vw 86vh / 6vw auto}
+/* 图鉴页专属：海鲜素材浮层（盖在内容框上面一层，不挡顶条/底部按键） */
+.knowledge-view .market-app::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.5;background:
+ url('../images/seafood-art/octopus.png') no-repeat 11vw 16vh / 8vw auto,
+ url('../images/seafood-art/whitebait.png') no-repeat 44vw 14vh / 5.5vw auto,
+ url('../images/seafood-art/prawn.png') no-repeat 75vw 15vh / 7vw auto,
+ url('../images/seafood-art/squid.png') no-repeat 89vw 40vh / 5vw auto,
+ url('../images/seafood-art/crab.png') no-repeat 11vw 68vh / 7vw auto,
+ url('../images/seafood-art/coral-trout.png') no-repeat 74vw 66vh / 7vw auto}
 /* 玻璃件基础 token */
 .knowledge-view .section-heading,.map-view .section-heading,.shops-view .section-heading,
 .knowledge-view .knowledge-item,.shops-view .shop-card,.shops-view .local-cat-bar,
