@@ -444,3 +444,11 @@ body:not(.home-view) .home-media{display:none}
 /* 剪影卡在底部玻璃条上沿：主页 dock 高 10vh，三个子页 dock 高 8.6vh */
 .feedback-view .market-app::before{content:'';position:absolute;left:0;right:0;bottom:10vh;height:20vh;pointer-events:none;z-index:0;background:url('../images/shekou-coast-silhouette.png') no-repeat bottom center / 100% auto}
 .satisfaction-view .market-app::before,.comment-view .market-app::before,.impression-view .market-app::before{content:'';position:absolute;left:0;right:0;bottom:8.6vh;height:20vh;pointer-events:none;z-index:0;background:url('../images/shekou-coast-silhouette.png') no-repeat bottom center / 100% auto}
+
+/* ===== 暖黄箭头/房屋图标 (2026-10-24) ===== 用户素材：icon-arrow-warm.png(朝左)/icon-home-warm.png；arrow-right 翻转朝右 */
+.icon.arrow{transform:scaleX(-1)}
+.wayfinding .arrow,.wayfinding>.icon{filter:none;color:inherit}
+
+/* ===== 删全局日期/状态/WorkBuddy 底行 + 找商户内容下移 (2026-10-24) ===== */
+.footer{display:none}
+.shops-view .section-main{justify-content:flex-end}

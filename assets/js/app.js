@@ -4,7 +4,7 @@ import {spotlightGroups,currentMerchant,nextMerchant} from './spotlight.js';
 import {createMarketClient} from './market-data.js';
 const iconFiles=import.meta.glob('../icons/*.svg',{eager:true,query:'?url',import:'default'});
 const artFiles=import.meta.glob('../images/icon-*.png',{eager:true,query:'?url',import:'default'});
-const artNames={storefront:'shop','map-trifold':'map',fish:'seafood',leaf:'vegetables',egg:'meat',grains:'grain','cooking-pot':'condiments',guide:'guide'};
+const artNames={storefront:'shop','map-trifold':'map',fish:'seafood',leaf:'vegetables',egg:'meat',grains:'grain','cooking-pot':'condiments',guide:'guide','arrow-left':'arrow-warm','arrow-right':'arrow-warm',house:'home-warm'};
 const $=id=>document.getElementById(id);
 const el=(tag,value='',className='')=>{const node=document.createElement(tag);node.textContent=value;node.className=className;return node;};
 const bi=(zh,en,cls='')=>{const node=el('span','','bi'+(cls?' '+cls:''));node.append(el('span',zh));if(en)node.append(el('span',en,'en'));return node;};
