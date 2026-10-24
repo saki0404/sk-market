@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 const root=dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
  base:'./',publicDir:false,
+ build:{rollupOptions:{input:{main:resolve(root,'index.html'),map:resolve(root,'map.html')}}},
  plugins:[{name:'market-third-party-notices',generateBundle(){this.emitFile({type:'asset',fileName:'assets/THIRD-PARTY-NOTICES.txt',source:readFileSync(resolve(root,'THIRD-PARTY-NOTICES.txt'),'utf8')});}},{name:'market-offline-shell',writeBundle(output,bundle){
   const out=output.dir||resolve(root,'dist');copyFileSync(resolve(root,'config.js'),resolve(out,'config.js'));
   const assets=Object.keys(bundle).filter(name=>name!=='index.html'&&!name.endsWith('.map'));
