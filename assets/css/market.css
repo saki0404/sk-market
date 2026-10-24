@@ -452,3 +452,9 @@ body:not(.home-view) .home-media{display:none}
 /* ===== 删全局日期/状态/WorkBuddy 底行 + 找商户内容下移 (2026-10-24) ===== */
 .footer{display:none}
 .shops-view .section-main{justify-content:flex-end}
+
+/* ===== 首页按键下方图标 (2026-10-24) ===== 文字在上、对应和纸图标在下，引导箭头移至按键右上角 */
+.home-actions .wayfinding{position:relative;flex-direction:column;align-items:center;justify-content:center;gap:.8vh;padding:2vh 1vw}
+.home-actions .wayfinding .action-title{justify-content:center}
+.home-actions .wayfinding .arrow{position:absolute;right:1vw;top:1vw}
+.way-art{height:9.5vh;max-width:11vw;object-fit:contain;pointer-events:none}
