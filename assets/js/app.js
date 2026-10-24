@@ -1,4 +1,5 @@
 import {createMarketMap} from './market-map.js';
+import {stallLocation} from './map-model.js';
 import {spotlightGroups,currentMerchant,nextMerchant} from './spotlight.js';
 import {createMarketClient} from './market-data.js';
 const iconFiles=import.meta.glob('../icons/*.svg',{eager:true,query:'?url',import:'default'});
@@ -119,7 +120,7 @@ function details(){
  const msgTitle=el('h3');msgTitle.append(bi('商户寄语','A note from the shop'));message.append(msgTitle,el('p',s.message||'暂无寄语 No note yet'));
  if(s.messageEn)message.append(el('p',s.messageEn,'en'));
  copy.append(intro,business,message);
- const f=data.floors.find(x=>x.id===s.floorId),z=f?.zones.find(x=>x.id===s.zoneId);
+ const location=stallLocation(data.floors,s),f=location?.floor,z=location?.area;
  if(f){const locationButton=button(bi(`查看位置 · ${f.name}${z?' / '+z.title:''}`,'View location'),()=>{floor=f.id;zone=z?.id||'';mapState.source=f.id;mapState.selected=zone;mapState.query='';navigate('map');},'quiet-button','map-trifold');locationButton.classList.add('detail-location');copy.append(locationButton);}
  content.append(photos,copy);root.append(content,homeFooter(backBtn));return root;
 }

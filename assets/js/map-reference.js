@@ -3,13 +3,13 @@
 export const referencePlan={width:1400,height:720,focus:{x:0,y:0,width:1400,height:720}};
 export const annexPlan={width:360,height:880,focus:{x:0,y:0,width:360,height:880}};
 export const mapFamilies=[
- {id:'all',title:'全部',en:'All',color:'#718678'},
- {id:'seafood',title:'买海鲜',en:'Seafood',color:'#5b9fbb'},
- {id:'produce',title:'买蔬果',en:'Produce',color:'#87aa67'},
- {id:'meat',title:'买肉禽',en:'Meat',color:'#d6887d'},
- {id:'pantry',title:'副食调料',en:'Pantry',color:'#bea15a'},
- {id:'cooked',title:'熟食小吃',en:'Ready to eat',color:'#d5a16a'},
- {id:'facilities',title:'出入与设施',en:'Facilities',color:'#82958b'}
+ {id:'all',title:'全部',en:'All',color:'#445d86'},
+ {id:'seafood',title:'买海鲜',en:'Seafood',color:'#3f91de'},
+ {id:'produce',title:'买蔬果',en:'Produce',color:'#329d77'},
+ {id:'meat',title:'买肉禽',en:'Meat',color:'#e77770'},
+ {id:'pantry',title:'副食调料',en:'Pantry',color:'#8f78cd'},
+ {id:'cooked',title:'熟食小吃',en:'Ready to eat',color:'#dfa640'},
+ {id:'facilities',title:'出入与设施',en:'Facilities',color:'#7d8ca6'}
 ];
 const entries=[
  ['seafood','海鲜档','Seafood','#28658c',[[401,574,166,94],[596,575,262,65],[596,669,260,66],[447,776,118,85],[677,770,180,69],[680,841,61,98],[875,577,80,64],[470,474,66,65],[855,474,98,65],[411,410,210,31],[762,410,70,31]]],
