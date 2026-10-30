@@ -18,7 +18,7 @@
 .masthead{z-index:2}.main-surface{z-index:1}
 @media(min-width:1400px){.masthead{padding-left:4vw}.brand h1{font-size:clamp(100px,7.2vw,145px)}}
 /* Entrance display: 1.97 m wide × 2 m high (portrait, ≈0.985). Size by viewport, not physical pixels. */
-@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+@media (min-width:601px) and (min-aspect-ratio:16/10){
  .market-app{
   height:100dvh;min-height:0;max-width:none;
   padding:0 2.8vw 1.2vh;
@@ -76,7 +76,7 @@
  .section-heading h2{font-size:3.2vw}
  .back-button,.quiet-button{min-height:0;padding:1vh 1.2vw;font-size:1.7vw;border-radius:1vw}
  .search{width:100%;order:3;padding:1vh 1.3vw;font-size:1.8vw;border-radius:1.2vw}
- .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2vw;max-height:none}
+ .shop-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:1.2vw;max-height:none}
  .shop-card{min-height:0;padding:1vw;gap:1.2vw;border-radius:1.5vw}
  .shop-card .shop-photo,.shop-card .photo-empty{height:12vh;border-radius:1vw}
  .shop-card h3{font-size:2.1vw;margin-bottom:.7vh}
@@ -132,7 +132,7 @@
 .detail-block h3{color:#07543e}
 .detail-block p:last-child,.detail-block .goods{margin-bottom:0}
 .detail-location{justify-self:start;max-width:100%;white-space:normal;text-align:left}
-@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+@media (min-width:601px) and (min-aspect-ratio:16/10){
  .detail-content{gap:1.8vh;padding:.4vw}
  .detail-text{padding:2vw;border-radius:1.5vw;gap:1.8vh}
  .detail-block+.detail-block{padding-top:1.5vh}
@@ -150,9 +150,8 @@
  --font-zh-serif:'Songti SC','STSong','STZhongsong','SimSun','NSimSun','Noto Serif SC','Source Han Serif SC',serif;
  color:#2C2C24;
 }
-body{background:var(--paper);font-family:'Nunito','Microsoft YaHei','PingFang SC',sans-serif}
-/* 纸纹颗粒：全局噪声覆盖层（低透明度 multiply） */
-body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.05;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+body{background:#F8F4ED;font-family:'Nunito','Microsoft YaHei','PingFang SC',sans-serif}
+/* 纸纹颗粒覆盖层已移除（2026-10-29 背景清理：整站底色换汉白玉 #F8F4ED，背景图案后续重做） */
 .main-surface{background:#FEFEFAF5;border:1px solid #DED8CF99;border-radius:2rem;box-shadow:0 4px 20px -2px rgba(93,112,82,.15)}
 .brand h1{font-family:var(--font-zh-serif);font-weight:700;letter-spacing:.06em}
 .brand>span{font-family:'Fraunces',Georgia,serif;color:#5D7052}
@@ -221,16 +220,12 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .knowledge-item .seafood-photo{width:38%;flex-shrink:0;aspect-ratio:3/4;align-self:center;object-fit:cover;border-radius:1.25rem;background:var(--stone);min-height:0}
 .knowledge-item .photo-empty.seafood-photo{display:flex;flex-direction:column;align-items:center;justify-content:center}
 
-/* ===== 首页沉浸式改版：媒体背景轮播 + 顶栏 + 底部四按键统一框 (2026-10-22) =====
-   按键沿用 .wayfinding 外观与浮动效果，仅改布局：背景层 + 顶部信息条 + 底部 dock */
-.home-media{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--stone)}
-.home-media-item{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1s ease}
-.home-media-item.shown{opacity:1}
-body:not(.home-view) .home-media{display:none}
-.home-view .produce-banner{display:none}
-.home-view .masthead,.home-view .category-bar,.home-view .footer{display:none}
-.home-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
-.home-view .market-app{padding:0}
+/* ===== 首页启动页 + 二级菜单页 (2026-10-29 16:9 改版) =====
+   媒体背景轮播层已移除（背景清理）；启动页仅顶条 + 底部"进入市场"玻璃键，菜单页中心四入口 */
+.home-view .masthead,.home-view .category-bar,.home-view .footer,
+.menu-view .masthead,.menu-view .category-bar,.menu-view .footer{display:none}
+.home-view .main-surface,.menu-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
+.home-view .market-app,.menu-view .market-app{padding:0}
 .home-stage{position:relative;height:100%;min-height:0}
 .home-topbar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:2vw;padding:1.4vh 2.2vw;background:rgba(253,252,248,.45);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.62);box-shadow:0 10px 32px -16px rgba(44,44,36,.25)}
 .home-brand{font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(26px,2.2vw,44px);letter-spacing:.08em;line-height:1.1}
@@ -250,7 +245,7 @@ body:not(.home-view) .home-media{display:none}
 .home-actions .wayfinding .action-copy{display:flex;justify-content:center}
 .home-actions .wayfinding .action-copy .bi{align-items:center;text-align:center}
 /* kiosk 竖屏（约0.985:1）：四按键一行排开，按比例缩放按键内容以适应 1/4 宽度 */
-@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+@media (min-width:601px) and (min-aspect-ratio:16/10){
  .home-topbar{padding:1.2vh 1.8vw}
  .home-dock{padding:1.4vh 2.2vw 1.6vh}
  .home-dock h2{font-size:2.5vw;margin-bottom:1.2vh}
@@ -268,8 +263,8 @@ body:not(.home-view) .home-media{display:none}
 .knowledge-item .seafood-copy h3{margin:0 0 4px}
 .knowledge-item .seafood-copy h4{margin:0;color:var(--muted);font-size:.72em;letter-spacing:.05em}
 .knowledge-item .seafood-copy p{margin:0;font-size:.92em;line-height:1.55;overflow-wrap:anywhere}
-@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
- .knowledge-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:601px) and (min-aspect-ratio:16/10){
+ .knowledge-list{grid-template-columns:repeat(4,minmax(0,1fr))}
  .knowledge-item{padding:1vw}
  .knowledge-item .seafood-photo{width:40%;min-height:0}
  .knowledge-item .seafood-copy{gap:.8vh}
@@ -287,7 +282,7 @@ body:not(.home-view) .home-media{display:none}
 /* 次级页底部操作行：左"首页"直达 / 右"返回"上一级 (2026-10-22) */
 /* 次级页外层框：与顶条留出空隙不贴边，框高随之收窄；沉浸式页面(home/反馈系列)除外 */
 .market-app>#main{margin-top:2.5vh}
-.home-view .market-app>#main,.feedback-view .market-app>#main,
+.home-view .market-app>#main,.menu-view .market-app>#main,.feedback-view .market-app>#main,
 .satisfaction-view .market-app>#main,.comment-view .market-app>#main,.impression-view .market-app>#main{margin-top:0}
 .section-footer{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding-top:.8vh;gap:1vw;margin-top:auto}
 /* 次级页内容居中容器：内容群垂直居中于顶条与底部按键行之间，内容多时可整体滚动 */
@@ -301,7 +296,7 @@ body:not(.home-view) .home-media{display:none}
 
 /* ===== 全局玻璃顶条：所有页面常驻"蛇口市场 + 日期天气" (2026-10-23) ===== */
 .global-topbar{display:flex;align-items:center;justify-content:space-between;gap:2vw;flex-shrink:0;margin:0 -2.8vw;padding:2vh 2.2vw;background:rgba(253,252,248,.45);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.62);box-shadow:0 10px 32px -16px rgba(44,44,36,.25)}
-.home-view .global-topbar,.feedback-view .global-topbar{margin:0}
+.home-view .global-topbar,.menu-view .global-topbar,.feedback-view .global-topbar{margin:0}
 .global-topbar .brand{display:inline-flex;align-items:baseline;gap:.8vw;background:none;border:0;padding:0;cursor:pointer;text-align:left}
 .global-topbar .brand h1{margin:0;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(36px,3.6vw,72px);letter-spacing:.08em;line-height:1.1;font-weight:900}
 .global-topbar .brand>span{font-family:var(--en-font);font-size:clamp(13px,1.2vw,24px);letter-spacing:.32em;color:var(--muted)}
@@ -322,8 +317,6 @@ body:not(.home-view) .home-media{display:none}
 .feedback-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
 .feedback-view .market-app{padding:0}
 .feedback-stage{position:relative;height:100%;min-height:0}
-.feedback-cloud{position:absolute;top:9vh;bottom:17vh;left:0;right:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.feedback-cloud img{max-width:72%;max-height:100%;object-fit:contain}
 .feedback-dock{display:flex;align-items:center;gap:1vw}
 .feedback-actions{flex:1;display:flex;justify-content:center;gap:1.2vw}
 .fb-btn{display:inline-flex;align-items:center;justify-content:center;background:rgba(253,252,248,.45);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:999px;padding:1.6vh 2.4vw;font-size:clamp(18px,1.8vw,34px);font-family:var(--font-zh-serif);color:var(--ink);box-shadow:0 8px 26px -10px rgba(44,44,36,.25);transition:transform .3s ease,box-shadow .3s ease;white-space:nowrap;cursor:pointer}
@@ -336,8 +329,6 @@ body:not(.home-view) .home-media{display:none}
 .satisfaction-view .main-surface,.comment-view .main-surface,.impression-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none;padding:0}
 .satisfaction-view .market-app,.comment-view .market-app,.impression-view .market-app{padding:0}
 .fb-sub-stage{position:relative;height:100%;min-height:0;display:flex;flex-direction:column}
-.fb-sub-stage .feedback-cloud{position:relative;top:auto;bottom:auto;flex:0 0 auto;height:40vh;min-height:0;padding-top:1vh}
-.fb-sub-stage .feedback-cloud img{max-height:36vh;max-width:62%}
 .fb-sub-body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:1.4vh;padding:0 5vw 10.2vh}
 .fb-sub-stage .feedback-dock{justify-content:space-between}
 .fb-sub-body .empty-state{flex:0 0 auto;min-height:0;height:auto;padding:2vh 4vw}
@@ -365,7 +356,7 @@ body:not(.home-view) .home-media{display:none}
 .fb-tip .bi{align-items:center;text-align:center}
 .fb-tip .bi .en{font-size:.5em;color:var(--muted);letter-spacing:.12em;margin-top:.2em;opacity:1}
 /* ===== 反馈意见页：真实输入框（多平台系统键盘接入点，2026-10-23 三版：与词云等宽居中）===== */
-.fb-comment-box{width:49.1vh;max-width:62%;min-height:34vh;max-height:40vh;align-self:center;flex-shrink:0;background:rgba(253,252,248,.55);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:1.4rem;padding:1.4vh 1.2vw;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(16px,1.6vw,30px);line-height:1.55;box-shadow:0 8px 26px -12px rgba(44,44,36,.2);resize:none}
+.fb-comment-box{width:min(49.1vh,40vw);max-width:62%;min-height:34vh;max-height:40vh;align-self:center;flex-shrink:0;background:rgba(253,252,248,.55);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid rgba(255,255,255,.62);border-radius:1.4rem;padding:1.4vh 1.2vw;font-family:var(--font-zh-serif);color:var(--ink);font-size:clamp(16px,1.6vw,30px);line-height:1.55;box-shadow:0 8px 26px -12px rgba(44,44,36,.2);resize:none}
 .fb-comment-box:focus{outline:3px solid rgba(93,112,82,.35);border-color:rgba(93,112,82,.5)}
 .fb-comment-box::placeholder{color:var(--muted);opacity:.85}
 /* 反馈意见页专属：内容整体上移（给底部弹出的系统键盘留空间） */
@@ -385,15 +376,12 @@ body:not(.home-view) .home-media{display:none}
 .floating-home{gap:.6vw;border-radius:999px;box-shadow:0 8px 22px -8px rgba(93,112,82,.35)}
 .floating-home .icon{width:clamp(22px,1.8vw,40px);height:clamp(22px,1.8vw,40px)}
 
-/* ===== 顶部食材剪影横幅背景（2026-10-19 用户提供图）=====
-   整张原图按原始比例（1920×640 = 3:1）铺满页面宽度，
-   mask 让不透明度从顶部 50% 自然渐隐到图片底部 0，只作装饰不挡点击。 */
-.produce-banner{position:absolute;top:0;left:0;right:0;aspect-ratio:1920/640;background:url('../images/produce-silhouette-banner.jpg') center top/100% 100% no-repeat;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,0));mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,0))}
+/* 顶部食材剪影横幅已移除（背景清理 2026-10-29） */
 
 /* 副标题（新鲜好物·便捷导览·发现更多）已删除：在近方形大屏布局里给标题行
    加上下等宽内边距，使其在原"标题+副标题"文字块的位置内垂直居中，上下留白一致；
    商户卡片与双入口按钮回到原位。 */
-@media (min-width:601px) and (min-aspect-ratio:17/20) and (max-aspect-ratio:5/4){
+@media (min-width:601px) and (min-aspect-ratio:16/10){
   .welcome>div:first-child{padding:1.4vh 0}
 }
 
@@ -401,44 +389,9 @@ body:not(.home-view) .home-media{display:none}
 /* 图鉴/地图/找商户：外层白框隐去（背景透出米纸+剪影），框感交给内部玻璃件 */
 .knowledge-view .main-surface,.map-view .main-surface,.shops-view .main-surface{background:transparent;border:0;box-shadow:none;outline:none}
 .knowledge-view .market-app,.map-view .market-app,.shops-view .market-app{position:relative}
-/* 地图/找商户页：剪影散落背景（素材已抠成单图透明底，多重 background 错落放置，整体半透明） */
-.map-view .market-app::before,.shops-view .market-app::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background:
- url('../images/silhouettes/fish-green.png') no-repeat 4vw 16vh / 7vw auto,
- url('../images/silhouettes/octopus-yellow.png') no-repeat 87vw 34vh / 8vw auto,
- url('../images/silhouettes/veg-peach.png') no-repeat 90vw 9vh / 6vw auto,
- url('../images/silhouettes/fish-red.png') no-repeat 84vw 60vh / 5.5vw auto,
- url('../images/silhouettes/shell-yellow.png') no-repeat 3vw 55vh / 7vw auto,
- url('../images/silhouettes/tomato-green.png') no-repeat 10vw 82vh / 6vw auto,
- url('../images/silhouettes/shell-peach.png') no-repeat 46vw 12.5vh / 4vw auto,
- url('../images/silhouettes/veg-green.png') no-repeat 42vw 84vh / 5vw auto,
- url('../images/silhouettes/octopus-green.png') no-repeat 22vw 6vh / 5vw auto,
- url('../images/silhouettes/fish-peach.png') no-repeat 68vw 7vh / 4vw auto,
- url('../images/silhouettes/shell-red.png') no-repeat 58vw 88vh / 5vw auto,
- url('../images/silhouettes/tomato-peach.png') no-repeat 14vw 36vh / 4vw auto}
-/* 图鉴页专属：14 张海鲜和纸素材散落背景 */
-.knowledge-view .market-app::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background:
- url('../images/seafood-art/sardine.png') no-repeat 6vw 9vh / 7vw auto,
- url('../images/seafood-art/seabass.png') no-repeat 30vw 4vh / 6.5vw auto,
- url('../images/seafood-art/squid.png') no-repeat 45vw 6vh / 4.5vw auto,
- url('../images/seafood-art/mantis-shrimp.png') no-repeat 72vw 10vh / 8.5vw auto,
- url('../images/seafood-art/whitebait.png') no-repeat 25vw 15vh / 6vw auto,
- url('../images/seafood-art/octopus.png') no-repeat 87vw 22vh / 7vw auto,
- url('../images/seafood-art/white-eel.png') no-repeat 2.5vw 34vh / 7.5vw auto,
- url('../images/seafood-art/yellowfin.png') no-repeat 88vw 48vh / 6vw auto,
- url('../images/seafood-art/grass-carp.png') no-repeat 3vw 58vh / 7vw auto,
- url('../images/seafood-art/yellow-eel.png') no-repeat 86vw 74vh / 6.5vw auto,
- url('../images/seafood-art/prawn.png') no-repeat 10vw 80vh / 7.5vw auto,
- url('../images/seafood-art/pomfret.png') no-repeat 38vw 84vh / 5.5vw auto,
- url('../images/seafood-art/coral-trout.png') no-repeat 60vw 80vh / 7vw auto,
- url('../images/seafood-art/crab.png') no-repeat 82vw 86vh / 6vw auto}
-/* 图鉴页专属：海鲜素材浮层（盖在内容框上面一层，不挡顶条/底部按键） */
-.knowledge-view .market-app::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.5;background:
- url('../images/seafood-art/octopus.png') no-repeat 11vw 16vh / 8vw auto,
- url('../images/seafood-art/whitebait.png') no-repeat 44vw 14vh / 5.5vw auto,
- url('../images/seafood-art/prawn.png') no-repeat 75vw 15vh / 7vw auto,
- url('../images/seafood-art/squid.png') no-repeat 89vw 40vh / 5vw auto,
- url('../images/seafood-art/crab.png') no-repeat 11vw 68vh / 7vw auto,
- url('../images/seafood-art/coral-trout.png') no-repeat 74vw 66vh / 7vw auto}
+/* 地图/找商户剪影散落背景已移除（背景清理 2026-10-29） */
+/* 图鉴海鲜素材散落背景已移除（背景清理 2026-10-29） */
+/* 图鉴海鲜素材浮层已移除（背景清理 2026-10-29） */
 /* 玻璃件基础 token */
 .knowledge-view .section-heading,.map-view .section-heading,.shops-view .section-heading,
 .knowledge-view .knowledge-item,.shops-view .shop-card,.shops-view .local-cat-bar,
@@ -463,11 +416,8 @@ body:not(.home-view) .home-media{display:none}
 .map-view .mall-level{background:rgba(253,252,248,.7)}
 .map-view .mall-guide.is-expanded{background:rgba(250,251,246,.92);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
 
-/* ===== 反馈系列页脚海岸剪影 (2026-10-24) ===== 消费反馈主页+满意度+反馈意见+蛇口印象：底部贴一整条蛇口海岸剪影（透明底素材），底部玻璃条半透明压在其上 */
-.feedback-view .market-app,.satisfaction-view .market-app,.comment-view .market-app,.impression-view .market-app{position:relative}
-/* 剪影卡在底部玻璃条上沿：主页 dock 高 10vh，三个子页 dock 高 8.6vh */
-.feedback-view .market-app::before{content:'';position:absolute;left:0;right:0;bottom:10vh;height:20vh;pointer-events:none;z-index:0;background:url('../images/shekou-coast-silhouette.png') no-repeat bottom center / 100% auto}
-.satisfaction-view .market-app::before,.comment-view .market-app::before,.impression-view .market-app::before{content:'';position:absolute;left:0;right:0;bottom:8.6vh;height:20vh;pointer-events:none;z-index:0;background:url('../images/shekou-coast-silhouette.png') no-repeat bottom center / 100% auto}
+/* 反馈系列页脚海岸剪影已移除（背景清理 2026-10-29）；.market-app position:relative 一并撤下 */
+
 
 /* ===== 暖黄箭头/房屋图标 (2026-10-24) ===== 用户素材：icon-arrow-warm.png(朝左)/icon-home-warm.png；arrow-right 翻转朝右 */
 .icon.arrow{transform:scaleX(-1)}
@@ -475,10 +425,91 @@ body:not(.home-view) .home-media{display:none}
 
 /* ===== 删全局日期/状态/WorkBuddy 底行 + 找商户内容下移 (2026-10-24) ===== */
 .footer{display:none}
-.shops-view .section-main{justify-content:flex-end}
+.shops-view .section-main{justify-content:flex-start}
+/* 找商户：卡片整体收紧，两行完整容于可视区（不置底、从上往下排） */
+.shops-view .shop-grid{gap:1vh 1.2vw}
+.shops-view .shop-card{padding:.7vh .8vw;gap:.5vh;border-radius:1.2rem}
+.shops-view .shop-card .shop-photo,.shops-view .shop-card .photo-empty{height:9.6vh;border-radius:.9rem}
+.shops-view .shop-card h3{font-size:1.8vw;margin-bottom:.4vh}
+.shops-view .shop-card p{font-size:1.25vw;margin:.3vh 0}
 
 /* ===== 首页按键下方图标 (2026-10-24) ===== 文字在上、对应和纸图标在下，引导箭头移至按键右上角 */
 .home-actions .wayfinding{position:relative;flex-direction:column;align-items:center;justify-content:center;gap:.8vh;padding:2vh 1vw}
 .home-actions .wayfinding .action-title{justify-content:center}
 .home-actions .wayfinding .arrow{position:absolute;right:1vw;top:1vw}
 .way-art{height:9.5vh;max-width:11vw;object-fit:contain;pointer-events:none}
+/* 全站宋体统一字重 800：与首页按键"海鲜图鉴"(.action-title font-weight:800)一致；Windows 宋体无原生粗体，靠 font-synthesis:weight 合成加粗 */
+.brand h1,.welcome h2,.section-heading h2,.action-title,.empty-state h2,.empty-state h3,
+.feature-copy h3,.shop-card h3,.zone-info h3,.detail-block h3,.knowledge-item h3,
+.home-brand,.home-dock h2,.fb-btn,.fb-rating-label,.fb-tip .bi,.fb-comment-box,.fb-thanks .bi{
+ font-weight:800;font-synthesis:weight}
+.global-topbar .brand h1,.fb-sub-title .bi{font-weight:800;font-synthesis:weight}
+
+/* ===== 86寸 16:9 横屏改版 (2026-10-29)：启动页 + 二级菜单页 ===== */
+/* 启动页：仅顶条 + 底部"进入市场"玻璃键（背景已清空，后续再补背景素材） */
+.home-stage{display:flex;align-items:flex-end;justify-content:center}
+.enter-btn{
+ display:inline-flex;align-items:center;justify-content:center;
+ background:rgba(253,252,248,.55);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);
+ border:1px solid rgba(255,255,255,.62);border-radius:999px;
+ padding:2.4vh 5vw;margin-bottom:7vh;
+ font-family:var(--font-zh-serif);color:var(--ink);
+ box-shadow:0 8px 26px -10px rgba(44,44,36,.25);
+ cursor:pointer;transition:transform .3s ease,box-shadow .3s ease;
+}
+.enter-btn .bi{align-items:center;text-align:center;font-size:clamp(26px,2.4vw,48px);letter-spacing:.1em}
+.enter-btn .bi .en{display:block;font-family:var(--en-font);font-size:.42em;letter-spacing:.24em;color:var(--muted);margin-top:.4em;opacity:1}
+.enter-btn:hover{transform:translateY(-4px);box-shadow:0 18px 38px -12px rgba(44,44,36,.3)}
+.enter-btn:active{transform:scale(.97)}
+.enter-btn:focus-visible{outline:3px solid rgba(93,112,82,.4);outline-offset:3px}
+/* 菜单页：四键横向一行排列，正方形按键（上文字、下图标），间距舒适 */
+.menu-stage{flex-direction:column;align-items:center}
+.menu-actions{grid-template-columns:repeat(4,29vh);gap:3.4vw;width:auto;margin:auto 0}
+/* 菜单页底部操作行：左"首页"右"返回"，与次级页同款浮动胶囊键 */
+.menu-footer{align-self:stretch;flex-shrink:0;margin-top:0;padding:0 3vw 2.2vh}
+/* 图鉴页标题药丸：更靠左、字号收紧 (2026-10-30) */
+.knowledge-view .section-heading{margin-left:-1vw;min-width:0;padding:.9vh 1.4vw}
+.knowledge-view .section-heading h2{font-size:2.2vw}
+.menu-actions .wayfinding{
+ aspect-ratio:1;min-height:0;height:auto;padding:2.6vh 1vw;gap:1.8vh;border-radius:1.6rem;
+ background:rgba(253,252,248,.55);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);
+ border:1px solid rgba(255,255,255,.62);box-shadow:0 8px 26px -12px rgba(44,44,36,.2);
+}
+.menu-actions .wayfinding .action-title{font-size:clamp(20px,1.7vw,34px)}
+.menu-actions .wayfinding .way-art{height:12vh;max-width:12vh}
+/* 找商户分类条：图标与文字缩小，恰好容于条内 (2026-10-30) */
+.shops-view .local-cat-bar{height:12vh;padding:.5vh .8vw}
+.shops-view .local-cat-bar .category-item{font-size:clamp(14px,1.15vw,24px);gap:.25vh;padding:.4vh .7vw}
+.shops-view .local-cat-bar .category-item .icon,.shops-view .local-cat-bar .category-item .art-icon{width:5.5vh;height:5.5vh;margin:0}
+.menu-actions .wayfinding .arrow{right:1.1vw;top:1.1vh;width:1.7vw;height:1.7vw}
+/* 菜单页背景：12 个食材/海鲜透明素材散落（层级：汉白玉底之上、按键之下，2026-10-30 用户提供） */
+.menu-stage{position:relative}
+.menu-stage::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:
+ url('../images/menu-art/baopi-fish.png') no-repeat 5vw 2.5vh / 9vw auto,
+ url('../images/menu-art/grass-carp.png') no-repeat 27vw 4vh / 8.5vw auto,
+ url('../images/menu-art/bigeye-fish.png') no-repeat 50vw 2vh / 6vw auto,
+ url('../images/menu-art/coral-trout.png') no-repeat 73vw 4.5vh / 7.5vw auto,
+ url('../images/menu-art/red-shrimp.png') no-repeat 89vw 2vh / 6vw auto,
+ url('../images/menu-art/red-pepper.png') no-repeat 1.5vw 31vh / 4.5vw auto,
+ url('../images/menu-art/baby-cabbage.png') no-repeat 92vw 29vh / 4.5vw auto,
+ url('../images/menu-art/sea-snail.png') no-repeat 4vw 62vh / 6vw auto,
+ url('../images/menu-art/white-radish.png') no-repeat 17vw 60vh / 4.5vw auto,
+ url('../images/menu-art/enoki.png') no-repeat 44vw 64vh / 5vw auto,
+ url('../images/menu-art/carrot.png') no-repeat 62vw 61vh / 4.8vw auto,
+ url('../images/menu-art/strawberry.png') no-repeat 85vw 63vh / 5vw auto}
+.menu-actions,.menu-footer{position:relative;z-index:1}
+/* 反馈子页：词云已移除，内容群改为垂直居中（原为贴底、上方由词云占位） */
+.fb-sub-body{justify-content:center;gap:1.8vh;padding:2vh 5vw 10.2vh}
+/* 满意度页：标题/三行评分/提交键整体上移 (2026-10-30) */
+.satisfaction-view .fb-sub-body{justify-content:flex-start;padding-top:7vh}
+/* 设计预览提示条：移到玻璃顶条下方，避免遮挡顶条右侧日期天气（dev 预览专用元素） */
+.preview-notice{top:11.5vh;border-radius:1rem}
+
+/* ===== 首页照片背景层 (2026-10-30)：两张海报轮播，7s/张，0.4s 叠化 =====
+   层级：汉白玉底色之上、顶条与"进入市场"按键之下；铺满顶条下沿到页面底部的整块区域 */
+.home-stage{position:relative}
+.home-photo{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.home-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s ease}
+.home-photo img.shown{opacity:1}
+.enter-btn{position:relative;z-index:1}
+
