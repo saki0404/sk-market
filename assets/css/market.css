@@ -544,3 +544,17 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .seafood-detail-view .sf-detail-info p{margin:0;font-size:clamp(13px,.85vw,19px);line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
 .seafood-detail-view .sf-detail-info p .bi .en{font-size:.7em;opacity:1;margin-top:.15em;line-height:1.32;color:var(--ink);overflow-wrap:anywhere}
 .seafood-detail-view .sf-detail-info p .bi{line-height:1.35}
+
+/* 反馈页：蛇口海湾金色剪影（词云之下、底条之上，2026-10-31） */
+.feedback-coast{position:absolute;left:0;right:0;bottom:12.6vh;z-index:0;display:flex;justify-content:center;pointer-events:none}
+.feedback-coast img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;object-position:center bottom}
+/* 满意度等子页：剪影在下、内容在上 */
+.fb-sub-body{position:relative;z-index:1}
+.fb-sub-stage .feedback-coast{z-index:0;bottom:11.1vh}
+/* 反馈主页：剪影自下而上渐变（底部100%不透明 → 顶部50%，2026-10-31） */
+.feedback-view .feedback-coast img{-webkit-mask-image:linear-gradient(to top,rgba(0,0,0,1) 0%,rgba(0,0,0,.5) 100%);mask-image:linear-gradient(to top,rgba(0,0,0,1) 0%,rgba(0,0,0,.5) 100%)}
+/* 意见反馈/蛇口印象：输入框宽 60% 居中 + 整体上移（2026-10-31 用户要求） */
+.comment-view .fb-comment-box,.impression-view .fb-comment-box{width:60vw;max-width:60vw;min-height:28vh;max-height:34vh;align-self:center;margin:0 auto}
+.comment-view .fb-sub-body,.impression-view .fb-sub-body{justify-content:flex-start;padding-top:7vh}
+/* 商户详情页：隐藏全局分类条（2026-10-31 用户要求） */
+.detail-view .category-bar{display:none}

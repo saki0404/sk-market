@@ -150,6 +150,9 @@ function knowledge(){const {root,head,backBtn}=section('海鲜图鉴',undefined,
 function seafoodDetails(){const k=data.encyclopedia.find(x=>x.id===selected);if(!k){view='knowledge';return knowledge();}const {root,head,backBtn}=section(k.name,()=>navigate('knowledge'),'Seafood guide');const wrap=el('div','','sf-detail');const figure=el('figure','','sf-detail-photo');const asset=k.photos?.[0];if(asset?.localUrl){const img=el('img');img.src=asset.localUrl;img.alt=k.name+'图片';img.addEventListener('error',()=>figure.replaceChildren(sfPlaceholder()),{once:true});figure.append(img);}else figure.append(sfPlaceholder());const info=el('div','','sf-detail-info');const rows=[['分类','Category',k.category,k.categoryEn],['别名 · 市场叫法','Also known as',k.alias,k.aliasEn],['英文名 · 学名','English · Scientific name',k.scientificName,''],['口感','Taste',k.taste,k.tasteEn],['应季','Best season',k.season,k.seasonEn],['怎么吃','How to cook it',k.cooking,k.cookingEn],['产地 · 来源','Origin',k.origin,k.originEn]];for(const [zh,en,val,valEn] of rows){const h4=el('h4');h4.append(bi(zh,en));const p=el('p');if(valEn)p.append(bi(val||'暂无资料 No info yet',valEn));else p.textContent=val||'暂无资料 No info yet';info.append(h4,p);}wrap.append(figure,info);const main=el('div','','section-main');main.append(head,wrap);root.append(main,homeFooter(backBtn));return root;}
 function feedback(){
  const stage=el('div','','feedback-stage');
+ const coast=el('div','','feedback-coast');
+ const coastImg=el('img');coastImg.src='./assets/images/coast-gold.png';coastImg.alt='蛇口海湾金色剪影：邮轮、渔港、榕树、灯塔与会展海岸';
+ coast.append(coastImg);
  const cloud=el('div','','feedback-cloud');
  const img=el('img','','feedback-cloud-img');img.src='./assets/images/shekou-wordcloud-alpha.png';img.alt='蛇口爱心词云：烟火气、慢节奏、松弛感、自在';
  cloud.append(img);
@@ -159,7 +162,7 @@ function feedback(){
  const actions=el('div','','feedback-actions');
  actions.append(button(bi('满意度','Satisfaction'),()=>navigate('satisfaction'),'fb-btn'),button(bi('反馈意见','Your feedback'),()=>navigate('comment'),'fb-btn'),button(bi('蛇口印象','Shekou vibes'),()=>navigate('impression'),'fb-btn'));
  dock.append(homeBtn,actions,backBtn);
- stage.append(cloud,dock);
+ stage.append(coast,cloud,dock);
  return stage;
 }
 function heartRow(zh,en,store,key){
@@ -178,8 +181,9 @@ function heartRow(zh,en,store,key){
  row.append(label,hearts);
  return row;
 }
-function fbSubPage(build){
+function fbSubPage(build,coast=false){
  const stage=el('div','','fb-sub-stage');
+ if(coast){const c=el('div','','feedback-coast');const ci=el('img');ci.src='./assets/images/coast-gold.png';ci.alt='蛇口海湾金色剪影';c.append(ci);stage.append(c);}
  const body=el('div','','fb-sub-body');
  build(body);
  const dock=el('div','','home-dock feedback-dock');
@@ -189,7 +193,7 @@ function fbSubPage(build){
  stage.append(body,dock);
  return stage;
 }
-function satisfaction(){const ratings={env:0,merchant:0,staff:0};return fbSubPage(body=>{const title=el('div','','fb-sub-title');title.append(bi('满意度','Satisfaction','center'));body.append(title,heartRow('环境','Environment',ratings,'env'),heartRow('商户服务态度','Merchant service',ratings,'merchant'),heartRow('工作人员服务态度','Market staff service',ratings,'staff'));const tip=el('div','','fb-tip');tip.append(bi('请填写后再提交哦','Please tap hearts before submitting','center'));tip.hidden=true;let tipTimer;const submit=el('button','','fb-btn fb-submit');submit.type='button';submit.append(bi('提交','Submit'));submit.onclick=async()=>{lastAction=Date.now();if(!ratings.env&&!ratings.merchant&&!ratings.staff){tip.hidden=false;clearTimeout(tipTimer);tipTimer=setTimeout(()=>{tip.hidden=true;},3000);return;}try{await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'satisfaction',env:ratings.env,merchant:ratings.merchant,staff:ratings.staff})});}catch{/* 离线也不影响感谢流程 */}const thanks=el('div','','fb-thanks');thanks.append(bi('感谢您的反馈','Thanks for your feedback','center'));body.replaceChildren(thanks);setTimeout(()=>navigate('feedback'),2000);};body.append(submit,tip);});}
+function satisfaction(){const ratings={env:0,merchant:0,staff:0};return fbSubPage(body=>{const title=el('div','','fb-sub-title');title.append(bi('满意度','Satisfaction','center'));body.append(title,heartRow('环境','Environment',ratings,'env'),heartRow('商户服务态度','Merchant service',ratings,'merchant'),heartRow('工作人员服务态度','Market staff service',ratings,'staff'));const tip=el('div','','fb-tip');tip.append(bi('请填写后再提交哦','Please tap hearts before submitting','center'));tip.hidden=true;let tipTimer;const submit=el('button','','fb-btn fb-submit');submit.type='button';submit.append(bi('提交','Submit'));submit.onclick=async()=>{lastAction=Date.now();if(!ratings.env&&!ratings.merchant&&!ratings.staff){tip.hidden=false;clearTimeout(tipTimer);tipTimer=setTimeout(()=>{tip.hidden=true;},3000);return;}try{await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'satisfaction',env:ratings.env,merchant:ratings.merchant,staff:ratings.staff})});}catch{/* 离线也不影响感谢流程 */}const thanks=el('div','','fb-thanks');thanks.append(bi('感谢您的反馈','Thanks for your feedback','center'));body.replaceChildren(thanks);setTimeout(()=>navigate('feedback'),2000);};body.append(submit,tip);},true);}
 function comment(){return textFeedbackPage('comment','轻点此处，用屏幕键盘输入您的意见反馈 Tap here and type with the on-screen keyboard','意见反馈输入框');}
 function impression(){return textFeedbackPage('impression','轻点此处，用屏幕键盘写下您的蛇口印象 Tap here and share your impression of Shekou','蛇口印象输入框');}
 /* 文本反馈子页共享构建器：comment/impression 同款设计，apiType 区分后台数据通道 */
@@ -201,8 +205,8 @@ function textFeedbackPage(apiType,placeholder,ariaLabel){return fbSubPage(body=>
  const submit=el('button','','fb-btn fb-submit');submit.type='button';submit.append(bi('提交','Submit'));
  submit.onclick=async()=>{lastAction=Date.now();const v=box.value.trim();if(!v){tip.hidden=false;clearTimeout(tipTimer);tipTimer=setTimeout(()=>{tip.hidden=true;},3000);return;}try{await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:apiType,text:v})});}catch{/* 离线不影响流程 */}const thanks=el('div','','fb-thanks');thanks.append(bi('感谢您的反馈','Thanks for your feedback','center'));body.replaceChildren(thanks);setTimeout(()=>navigate('feedback'),2000);};
  body.append(box,submit,tip);
-});}
-function render(){document.body.classList.toggle('map-view',view==='map');document.body.classList.toggle('knowledge-view',view==='knowledge');document.body.classList.toggle('seafood-detail-view',view==='seafoodDetail');document.body.classList.toggle('home-view',view==='home');document.body.classList.toggle('menu-view',view==='menu');document.body.classList.toggle('feedback-view',view==='feedback');document.body.classList.toggle('shops-view',view==='shops');document.body.classList.toggle('satisfaction-view',view==='satisfaction');document.body.classList.toggle('comment-view',view==='comment');document.body.classList.toggle('impression-view',view==='impression');disposeMap?.();disposeMap=null;clearTimeout(rotationTimer);clearInterval(photoTimer);photoTimer=null;$('marketName').textContent=data.market?.name||'蛇口市场';$('main').replaceChildren(({home,menu,shops:shopList,detail:details,map:marketMap,knowledge,seafoodDetail:seafoodDetails,feedback,satisfaction,comment,impression}[view]||home)());if(view==='home')startPhotoCarousel();renderBar();scheduleRotation();}
+},true);}
+function render(){document.body.classList.toggle('map-view',view==='map');document.body.classList.toggle('knowledge-view',view==='knowledge');document.body.classList.toggle('seafood-detail-view',view==='seafoodDetail');document.body.classList.toggle('home-view',view==='home');document.body.classList.toggle('menu-view',view==='menu');document.body.classList.toggle('feedback-view',view==='feedback');document.body.classList.toggle('shops-view',view==='shops');document.body.classList.toggle('detail-view',view==='detail');document.body.classList.toggle('satisfaction-view',view==='satisfaction');document.body.classList.toggle('comment-view',view==='comment');document.body.classList.toggle('impression-view',view==='impression');disposeMap?.();disposeMap=null;clearTimeout(rotationTimer);clearInterval(photoTimer);photoTimer=null;$('marketName').textContent=data.market?.name||'蛇口市场';$('main').replaceChildren(({home,menu,shops:shopList,detail:details,map:marketMap,knowledge,seafoodDetail:seafoodDetails,feedback,satisfaction,comment,impression}[view]||home)());if(view==='home')startPhotoCarousel();renderBar();scheduleRotation();}
 $('brandHome').onclick=()=>navigate('home');for(const event of ['pointerdown','keydown','wheel'])document.addEventListener(event,()=>{lastAction=Date.now();},{passive:true});
 function clock(){const now=new Date();const zh=now.toLocaleDateString('zh-CN',{timeZone:'Asia/Shanghai',month:'long',day:'numeric',weekday:'long'});const en=now.toLocaleDateString('en-US',{timeZone:'Asia/Shanghai',month:'short',day:'numeric',weekday:'short'});const dt=$('dateText');dt.dateTime=now.toISOString();dt.replaceChildren(el('span',zh),' · ',el('span',en,'en'));const hd=$('homeDate');if(hd){hd.dateTime=now.toISOString();hd.replaceChildren(el('span',zh),' · ',el('span',en,'en'));}if(view!=='home'&&Date.now()-lastAction>120000)navigate('home');}clock();setInterval(clock,1000);
 render();
