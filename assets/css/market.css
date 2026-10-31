@@ -558,3 +558,6 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .comment-view .fb-sub-body,.impression-view .fb-sub-body{justify-content:flex-start;padding-top:7vh}
 /* 商户详情页：隐藏全局分类条（2026-10-31 用户要求） */
 .detail-view .category-bar{display:none}
+/* 找商户「全部商户」标题框与图鉴页标题一致（2026-10-31 用户要求） */
+.shops-view .section-heading{padding:.9vh 1.4vw;min-width:0}
+.shops-view .section-heading h2{font-size:2.2vw}
