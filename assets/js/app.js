@@ -58,11 +58,25 @@ async function rotateSpotlight(){
  }finally{rotating=false;scheduleRotation();}
 }
 document.addEventListener('visibilitychange',scheduleRotation);
-function categoryIcon(c){const name=c.name;if(/水产|海鲜/.test(name))return 'fish';if(/蔬|果/.test(name))return 'leaf';if(/肉|禽|蛋/.test(name))return 'egg';if(/粮|油|干货/.test(name))return 'grains';if(/副食|调料|熟食/.test(name))return 'cooking-pot';return 'storefront';}
+function categoryIcon(c){const name=c.name;if(/水产|海鲜|冰鲜|贝壳/.test(name))return 'fish';if(/蔬|果/.test(name))return 'leaf';if(/肉|禽|蛋/.test(name))return 'egg';if(/粮|油|干货/.test(name))return 'grains';if(/副食|调料|熟食/.test(name))return 'cooking-pot';return 'storefront';}
 function photo(asset,name){if(!asset?.localUrl){const p=el('div','','photo-empty');p.append(icon('storefront'),bi('暂无门店照片','No photo yet'));return p;}const img=el('img','','shop-photo');img.src=asset.localUrl;img.alt=(isPreview?'设计示意：':'')+name+'门店照片';img.addEventListener('error',()=>img.replaceWith(photo(null,name)),{once:true});return img;}
 function navigate(next,options={}){if(next==='detail'&&view!=='detail')detailReturn=view==='home'?'home':view==='map'?'map':'shops';if(next!==view){if(view==='home'||next==='home')fromView='home';else if(view==='menu')fromView='menu';}view=next;if(options.category!==undefined){category=options.category;query='';}if(options.selected!==undefined)selected=options.selected;if(options.floor!==undefined){floor=options.floor;zone='';}if(options.zone!==undefined)zone=options.zone;lastAction=Date.now();render();$('main').focus({preventScroll:true});}
 function renderBar(){const bar=$('categoryBar');bar.replaceChildren();if(!data.categories.length){bar.append(bi('商户分类将在资料发布后显示','Categories will appear once published','category-placeholder'));return;}for(const c of data.categories){const b=button(c.nameEn?bi(c.name,c.nameEn):c.name,()=>navigate('shops',{category:c.id}),'category-item'+(view==='shops'&&category===c.id?' selected':''),categoryIcon(c));b.setAttribute('aria-pressed',String(view==='shops'&&category===c.id));bar.append(b);}}
-function card(stall,feature=false){const b=el('button','',feature?'shop-feature':'shop-card');b.type='button';b.setAttribute('aria-label',`查看${stall.name}详情`);b.append(photo(stall.photos[0],stall.name));const copy=el('div','',feature?'feature-copy':'card-copy');copy.append(el('h3',stall.name));if(!feature&&stall.code)copy.append(el('span',stall.code,'stall-code'));copy.append(el('p',stall.intro||'暂无店铺介绍 No shop intro yet'));if(feature)copy.append(icon('arrow-right'));b.append(copy);if(isPreview&&feature)b.append(el('span','示意','sample-tag'));b.onclick=()=>navigate('detail',{selected:stall.id});return b;}
+function goodsText(stall){return Array.isArray(stall.goods)?stall.goods.join(' · '):(stall.goods||'');}
+function card(stall,feature=false){
+ if(feature){const b=el('button','','shop-feature');b.type='button';b.setAttribute('aria-label',`查看${stall.name}详情`);const copy=el('div','','feature-copy');b.append(photo(stall.photos[0],stall.name));copy.append(el('h3',stall.name));copy.append(el('p',stall.intro||'暂无店铺介绍 No shop intro yet'));copy.append(icon('arrow-right'));b.append(copy);if(isPreview)b.append(el('span','示意','sample-tag'));b.onclick=()=>navigate('detail',{selected:stall.id});return b;}
+ /* 找商户卡片：纯展示，不可点进详情（2026-10-31 用户要求） */
+ const b=el('div','','shop-card');
+ const copy=el('div','','card-copy');
+ const h3=el('h3');h3.append(bi(stall.name,stall.nameEn||''));copy.append(h3);
+ const meta=el('div','','shop-meta');
+ if(stall.code)meta.append(el('span',stall.code,'stall-code'));
+ const goods=goodsText(stall);
+ if(goods){const g=el('span','','shop-goods');g.append(bi(goods,stall.goodsEn||''));meta.append(g);}
+ copy.append(meta);
+ b.append(copy);
+ return b;
+}
 function action(zhT,enT,symbol,callback,primary=false,artName=''){const b=el('button','','wayfinding'+(primary?' primary':''));b.type='button';const copy=el('span','','action-copy');const title=el('span','','action-title');title.append(bi(zhT,enT));copy.append(title);b.append(copy,icon('arrow-right','arrow'));if(artName){const img=el('img','','way-art');img.src=artFiles['../images/icon-'+artName+'.png'];img.alt='';b.append(img);}b.onclick=callback;return b;}
 /* 首页（启动页）：顶条 + 顶条下方海报照片层（轮播）+ 底部"进入市场"玻璃键，点击进入二级菜单页 */
 const HOME_PHOTOS=['./assets/images/home-bg-1.jpg','./assets/images/home-bg-2.jpg'];
@@ -107,7 +121,7 @@ function menu(){
 }
 function section(title,back=()=>navigate(fromView),en=''){const root=el('section','','section-view'),head=el('div','','section-heading'),h2=el('h2');h2.append(bi(title,en));head.append(h2);const backBtn=button(bi('返回','Back'),back,'back-button floating-back','arrow-left');root.append(head);return {root,head,backBtn};}
 function homeFooter(backBtn){const homeBtn=button(bi('首页','Home'),()=>navigate('home'),'back-button floating-home','house');const footer=el('div','','section-footer');footer.append(homeBtn,backBtn);return footer;}
-function filteredStalls(){const term=query.trim().toLocaleLowerCase();return data.stalls.filter(s=>(!category||s.categoryId===category)&&(!term||[s.name,s.nameEn,s.code,s.intro,...s.goods].some(v=>v.toLocaleLowerCase().includes(term))));}
+function filteredStalls(){const term=query.trim().toLocaleLowerCase();return data.stalls.filter(s=>(!category||s.categoryId===category)&&(!term||[s.name,s.nameEn||'',s.code||'',s.intro||'',goodsText(s),s.goodsEn||''].some(v=>v.toLocaleLowerCase().includes(term))));}
 function shopList(){const cat=data.categories.find(c=>c.id===category);/* 分类页返回→全部商户；全部商户页返回→上一级 */const {root,head,backBtn}=section(cat?.name||'全部商户',category?()=>navigate('shops',{category:''}):undefined,cat?.nameEn||'All shops');/* 具体分类页：删掉标题药丸，只展示卡片（2026-10-30 用户要求） */if(category)head.remove();const grid=el('div','','shop-grid');const bar=el('nav','','category-bar local-cat-bar');if(!data.categories.length)bar.append(bi('商户分类将在资料发布后显示','Categories will appear once published','category-placeholder'));for(const c of data.categories){const b=button(c.nameEn?bi(c.name,c.nameEn):c.name,()=>navigate('shops',{category:c.id}),'category-item'+(category===c.id?' selected':''),categoryIcon(c));b.setAttribute('aria-pressed',String(category===c.id));bar.append(b);}function results(){grid.replaceChildren();const rows=filteredStalls();if(rows.length)grid.append(...rows.map(s=>card(s)));else grid.append(empty(bi('暂无已发布商户','No published shops yet'),bi('该分类有新的公开资料后，会显示在这里。','Listings will appear here once new public info is released.')));}results();const main=el('div','','section-main');/* 具体分类页：不显示标题药丸，只展示卡片（2026-10-30 用户要求） */if(category)main.append(grid);else main.append(head,grid);root.append(main,bar,homeFooter(backBtn));return root;}
 function details(){
  const s=data.stalls.find(x=>x.id===selected);
@@ -115,28 +129,34 @@ function details(){
  const {root,head,backBtn}=section(s.name,()=>navigate(detailReturn),s.nameEn||'');
  if(s.code)head.append(el('span',s.code,'stall-code'));
  const content=el('div','','detail-content'),photos=el('div','','detail-photos');
- const publishedPhotos=s.photos.slice(0,2);
+ const publishedPhotos=(s.photos||[]).slice(0,2);
  photos.dataset.count=String(Math.max(1,publishedPhotos.length));
- if(publishedPhotos.length)for(const asset of publishedPhotos)photos.append(photo(asset,s.name));
- else photos.append(photo(null,s.name));
+ const hasPhotos=publishedPhotos.length>0;
+ if(hasPhotos)for(const asset of publishedPhotos)photos.append(photo(asset,s.name));
+ else content.classList.add('no-photo');/* 无照片时不渲染照片占位区（商户基础信息无照片，2026-10-31） */
  const copy=el('div','','detail-text');
- const intro=el('section','','detail-block detail-intro');
- const about=el('h3');about.append(bi('认识这家店','About this shop'));
- if(s.nameEn)intro.append(el('p',s.nameEn,'en'));
- intro.append(about,el('p',s.intro||'暂无已发布介绍 No published intro yet'));
- if(s.introEn)intro.append(el('p',s.introEn,'en'));
+ if(s.intro||s.introEn){const intro=el('section','','detail-block detail-intro');
+  const about=el('h3');about.append(bi('认识这家店','About this shop'));
+  if(s.nameEn)intro.append(el('p',s.nameEn,'en'));
+  intro.append(about,el('p',s.intro||'暂无已发布介绍 No published intro yet'));
+  if(s.introEn)intro.append(el('p',s.introEn,'en'));
+  copy.append(intro);}
  const business=el('section','','detail-block');
  const bizTitle=el('h3');bizTitle.append(bi('经营品类','What they sell'));business.append(bizTitle);
+ const goodsList=Array.isArray(s.goods)?s.goods:(s.goods?[s.goods]:[]);
  const goods=el('div','','goods');
- goods.append(...(s.goods.length?s.goods:['暂无已发布品类 No published goods yet']).map(g=>el('span',g)));
+ if(goodsList.length)goods.append(...goodsList.map(g=>{const sp=el('span');sp.append(bi(g,s.goodsEn||''));return sp;}));
+ else goods.append(el('span','暂无已发布品类 No published goods yet'));
  business.append(goods);
- const message=el('section','','detail-block');
- const msgTitle=el('h3');msgTitle.append(bi('商户寄语','A note from the shop'));message.append(msgTitle,el('p',s.message||'暂无寄语 No note yet'));
- if(s.messageEn)message.append(el('p',s.messageEn,'en'));
- copy.append(intro,business,message);
+ if(s.code){const codeBlock=el('section','','detail-block');const ct=el('h3');ct.append(bi('档位号','Stall No.'));codeBlock.append(ct,el('p',s.code));copy.append(codeBlock);}/* 档位号在前，经营品类随后（2026-10-31） */
+ copy.append(business);
+ if(s.message||s.messageEn){const message=el('section','','detail-block');
+  const msgTitle=el('h3');msgTitle.append(bi('商户寄语','A note from the shop'));message.append(msgTitle,el('p',s.message||'暂无寄语 No note yet'));
+  if(s.messageEn)message.append(el('p',s.messageEn,'en'));
+  copy.append(message);}
  const location=stallLocation(data.floors,s),f=location?.floor,z=location?.area;
  if(f){const locationButton=button(bi(`查看位置 · ${f.name}${z?' / '+z.title:''}`,'View location'),()=>{floor=f.id;zone=z?.id||'';mapState.source=f.id;mapState.selected=zone;mapState.query='';navigate('map');},'quiet-button','map-trifold');locationButton.classList.add('detail-location');copy.append(locationButton);}
- content.append(photos,copy);root.append(content,homeFooter(backBtn));return root;
+ if(hasPhotos)content.append(photos);content.append(copy);root.append(content,homeFooter(backBtn));return root;
 }
 function marketMap(){
  const {root,head,backBtn}=section('市场导览',undefined,'Market map');

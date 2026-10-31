@@ -561,3 +561,39 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 /* 找商户「全部商户」标题框与图鉴页标题一致（2026-10-31 用户要求） */
 .shops-view .section-heading{padding:.9vh 1.4vw;min-width:0}
 .shops-view .section-heading h2{font-size:2.2vw}
+
+/* ===== 找商户：纯文字卡片 + 商户详情无照片版 (2026-10-31) =====
+   用户要求：卡片不展示照片，只展示店名（经营名称）/ 档位号 / 经营品类 */
+.shops-view .shop-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:1.1vh 1vw;align-content:start}
+/* 找商户卡片为纯展示：去掉指针光标与悬停浮起（2026-10-31 用户要求，卡片不可点击） */
+.shops-view .shop-card{cursor:default}
+.shops-view .shop-card:hover{transform:none;box-shadow:0 8px 26px -12px rgba(44,44,36,.2)}
+.shops-view .shop-card{
+ flex-direction:column;align-items:stretch;justify-content:flex-start;gap:.5vh;
+ padding:1.1vh 1vw;min-height:0;
+}
+.shops-view .shop-card .card-copy{display:flex;flex-direction:column;gap:.55vh;width:100%;min-width:0}
+.shops-view .shop-card h3{font-size:clamp(15px,1.22vw,25px);line-height:1.28;margin:0;overflow-wrap:anywhere}
+.shops-view .shop-card h3 .bi{display:inline-flex}
+.shops-view .shop-card h3 .bi .en{font-size:.6em;opacity:1;margin-top:.16em;color:var(--muted)}
+.shops-view .shop-card .shop-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.45vw;min-width:0}
+.shops-view .shop-card .stall-code,
+.shops-view .shop-card .shop-goods{
+ display:inline-flex;align-items:baseline;gap:.35em;
+ font-size:clamp(11px,.82vw,17px);line-height:1.2;
+ padding:.3vh .55vw;border-radius:999px;
+ background:rgba(93,112,82,.1);color:var(--ink);border:0;white-space:nowrap;
+}
+.shops-view .shop-card .stall-code{background:rgba(193,140,93,.14);color:#7A5327}
+.shops-view .shop-card .shop-goods{white-space:normal}
+.shops-view .shop-card .shop-goods .bi{display:inline-flex;flex-direction:row;align-items:baseline;gap:.35em}
+.shops-view .shop-card .shop-goods .bi .en{font-size:.86em;opacity:1;margin-top:0;color:var(--muted)}
+
+/* 商户详情（无照片）：单列居中，档位号/经营品类紧凑排布 */
+.detail-content.no-photo{display:flex;flex-direction:column;align-items:center}
+.detail-content.no-photo .detail-text{width:min(100%,56vw);flex:0 1 auto;min-height:0;overflow:auto;gap:2.4vh;align-content:start;padding:3vh 2.4vw}
+.detail-content.no-photo .detail-text .detail-block p{font-size:clamp(15px,1.05vw,22px)}
+.detail-content.no-photo .goods span{font-size:clamp(14px,1.02vw,21px);padding:.45vh 1vw}
+.detail-content.no-photo .goods .bi{flex-direction:row;align-items:baseline;gap:.45em}
+.detail-content.no-photo .goods .bi .en{font-size:.72em;opacity:1;margin-top:0;color:var(--muted)}
+.detail-content.no-photo .detail-block+.detail-block{border-top:0;padding-top:0}
