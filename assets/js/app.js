@@ -23,7 +23,7 @@ function featureCard(group,stall){
  const node=card(stall,true);
  node.dataset.categoryId=group.category.id;
  const label=node.querySelector('.sample-tag')||el('span','','sample-tag');
- label.textContent=group.category.name+(group.category.nameEn?' · '+group.category.nameEn:'')+(isPreview?' · 示意 Sample':'');
+ label.textContent=group.category.name+(group.category.nameEn?' · '+group.category.nameEn:'');
  if(!label.isConnected)node.append(label);
  return node;
 }
@@ -59,12 +59,12 @@ async function rotateSpotlight(){
 }
 document.addEventListener('visibilitychange',scheduleRotation);
 function categoryIcon(c){const name=c.name;if(/水产|海鲜|冰鲜|贝壳/.test(name))return 'fish';if(/蔬|果/.test(name))return 'leaf';if(/肉|禽|蛋/.test(name))return 'egg';if(/粮|油|干货/.test(name))return 'grains';if(/副食|调料|熟食/.test(name))return 'cooking-pot';return 'storefront';}
-function photo(asset,name){if(!asset?.localUrl){const p=el('div','','photo-empty');p.append(icon('storefront'),bi('暂无门店照片','No photo yet'));return p;}const img=el('img','','shop-photo');img.src=asset.localUrl;img.alt=(isPreview?'设计示意：':'')+name+'门店照片';img.addEventListener('error',()=>img.replaceWith(photo(null,name)),{once:true});return img;}
+function photo(asset,name){if(!asset?.localUrl){const p=el('div','','photo-empty');p.append(icon('storefront'),bi('暂无门店照片','No photo yet'));return p;}const img=el('img','','shop-photo');img.src=asset.localUrl;img.alt=name+'门店照片';img.addEventListener('error',()=>img.replaceWith(photo(null,name)),{once:true});return img;}
 function navigate(next,options={}){if(next==='detail'&&view!=='detail')detailReturn=view==='home'?'home':view==='map'?'map':'shops';if(next!==view){if(view==='home'||next==='home')fromView='home';else if(view==='menu')fromView='menu';}view=next;if(options.category!==undefined){category=options.category;query='';}if(options.selected!==undefined)selected=options.selected;if(options.floor!==undefined){floor=options.floor;zone='';}if(options.zone!==undefined)zone=options.zone;lastAction=Date.now();render();$('main').focus({preventScroll:true});}
 function renderBar(){const bar=$('categoryBar');bar.replaceChildren();if(!data.categories.length){bar.append(bi('商户分类将在资料发布后显示','Categories will appear once published','category-placeholder'));return;}for(const c of data.categories){const b=button(c.nameEn?bi(c.name,c.nameEn):c.name,()=>navigate('shops',{category:c.id}),'category-item'+(view==='shops'&&category===c.id?' selected':''),categoryIcon(c));b.setAttribute('aria-pressed',String(view==='shops'&&category===c.id));bar.append(b);}}
 function goodsText(stall){return Array.isArray(stall.goods)?stall.goods.join(' · '):(stall.goods||'');}
 function card(stall,feature=false){
- if(feature){const b=el('button','','shop-feature');b.type='button';b.setAttribute('aria-label',`查看${stall.name}详情`);const copy=el('div','','feature-copy');b.append(photo(stall.photos[0],stall.name));copy.append(el('h3',stall.name));copy.append(el('p',stall.intro||'暂无店铺介绍 No shop intro yet'));copy.append(icon('arrow-right'));b.append(copy);if(isPreview)b.append(el('span','示意','sample-tag'));b.onclick=()=>navigate('detail',{selected:stall.id});return b;}
+ if(feature){const b=el('button','','shop-feature');b.type='button';b.setAttribute('aria-label',`查看${stall.name}详情`);const copy=el('div','','feature-copy');b.append(photo(stall.photos[0],stall.name));copy.append(el('h3',stall.name));copy.append(el('p',stall.intro||'暂无店铺介绍 No shop intro yet'));copy.append(icon('arrow-right'));b.append(copy);b.onclick=()=>navigate('detail',{selected:stall.id});return b;}
  /* 找商户卡片：纯展示，不可点进详情（2026-10-31 用户要求） */
  const b=el('div','','shop-card');
  const copy=el('div','','card-copy');
@@ -79,7 +79,7 @@ function card(stall,feature=false){
 }
 function action(zhT,enT,symbol,callback,primary=false,artName=''){const b=el('button','','wayfinding'+(primary?' primary':''));b.type='button';const copy=el('span','','action-copy');const title=el('span','','action-title');title.append(bi(zhT,enT));copy.append(title);b.append(copy,icon('arrow-right','arrow'));if(artName){const img=el('img','','way-art');img.src=artFiles['../images/icon-'+artName+'.png'];img.alt='';b.append(img);}b.onclick=callback;return b;}
 /* 首页（启动页）：顶条 + 顶条下方海报照片层（轮播）+ 底部"进入市场"玻璃键，点击进入二级菜单页 */
-const HOME_PHOTOS=['./assets/images/home-bg-1.jpg','./assets/images/home-bg-2.jpg'];
+const HOME_PHOTOS=['./assets/images/home-bg-1.jpg','./assets/images/home-bg-2.jpg','./assets/images/home-bg-3.jpg','./assets/images/home-bg-4.jpg'];
 let photoTimer=null,photoIdx=0;
 function startPhotoCarousel(){
  const imgs=[...document.querySelectorAll('.home-photo img')];
@@ -230,5 +230,5 @@ function render(){document.body.classList.toggle('map-view',view==='map');docume
 $('brandHome').onclick=()=>navigate('home');for(const event of ['pointerdown','keydown','wheel'])document.addEventListener(event,()=>{lastAction=Date.now();},{passive:true});
 function clock(){const now=new Date();const zh=now.toLocaleDateString('zh-CN',{timeZone:'Asia/Shanghai',month:'long',day:'numeric',weekday:'long'});const en=now.toLocaleDateString('en-US',{timeZone:'Asia/Shanghai',month:'short',day:'numeric',weekday:'short'});const dt=$('dateText');dt.dateTime=now.toISOString();dt.replaceChildren(el('span',zh),' · ',el('span',en,'en'));const hd=$('homeDate');if(hd){hd.dateTime=now.toISOString();hd.replaceChildren(el('span',zh),' · ',el('span',en,'en'));}if(view!=='home'&&Date.now()-lastAction>120000)navigate('home');}clock();setInterval(clock,1000);
 render();
-if(isPreview){$('previewNotice').hidden=false;const {previewData}=await import('./design-preview.js');data=previewData;loadState='ready';const v=new URLSearchParams(location.search).get('view');if(v&&['home','menu','shops','map','knowledge','seafoodDetail','feedback','satisfaction','comment','impression'].includes(v))view=v;$('syncStatus').textContent='设计示意 Design preview · 非真实商户资料 Not real merchants';render();}
+if(isPreview){const {previewData}=await import('./design-preview.js');data=previewData;loadState='ready';const v=new URLSearchParams(location.search).get('view');if(v&&['home','menu','shops','map','knowledge','seafoodDetail','feedback','satisfaction','comment','impression'].includes(v))view=v;render();}
 else {const config=window.ENTRANCE_CONFIG||{};client=createMarketClient({apiBase:config.apiBase||'',marketId:config.marketId||'mkt_001',onData(next){data=next;loadState='ready';render();},onStatus(message,state){loadState=state;$('syncStatus').textContent=message;if(view==='home'&&!data.stalls.length)render();}});void client.start();window.addEventListener('online',()=>client.refresh());window.addEventListener('pagehide',event=>{if(!event.persisted)client.stop();});if('serviceWorker'in navigator&&!import.meta.env.DEV)navigator.serviceWorker.register(new URL('sw.js',document.baseURI)).catch(()=>{$('syncStatus').textContent+=' · 离线页面缓存不可用';});}
