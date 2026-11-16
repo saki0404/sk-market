@@ -5,6 +5,8 @@ import {layoutReference} from './reference-layout.js';
 import {publishedAreas,areaMerchants} from './map-model.js';
 import {glyph} from './map-glyph.js';
 import {drawScene,svgNode} from './map-scene.js';
+import {findReferenceRoute,layoutRoutePoint,routeBounds} from './map-routing.js';
+import {drawNavigation} from './map-navigation.js';
 const el=(tag,text='',className='')=>{const n=document.createElement(tag);n.textContent=text;n.className=className;return n;};
 function label(zh,en){const n=el('span','','mall-label');n.append(el('span',zh));if(en)n.append(el('small',en));return n;}
 function button(zh,en,run,cls='mall-button',icon){const b=el('button','',cls);b.type='button';if(icon)b.append(glyph(icon));b.append(label(zh,en));b.onclick=run;return b;}
@@ -19,8 +21,9 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
  const dock=el('div','','mall-dock'),filters=el('nav','','mall-filters'),toolbar=el('div','','mall-toolbar'),sources=el('nav','','mall-sources'),zoomBar=el('div','','mall-zoom');
  filters.setAttribute('aria-label','选择想逛的品类');sources.setAttribute('aria-label','选择市场地图');zoomBar.setAttribute('aria-label','地图操作');
  const panel=el('section','','mall-panel'),intro=el('div','','mall-intro'),results=el('div','','mall-results');intro.setAttribute('aria-live','polite');panel.append(intro,results);
- const controls=el('div','','mall-controls');toolbar.append(sources,zoomBar);controls.append(filters,toolbar);dock.append(panel,controls);root.append(viewport,dock);
- let floor,world,overviewBounds,areas=[],selectedArea,part=0,pz,fitScale=1,focused=!!state.selected,disposed=false,frame,resizeFrame;
+ const navigation=el('section','','mall-navigation-card');navigation.setAttribute('aria-live','polite');
+ const controls=el('div','','mall-controls');toolbar.append(sources,zoomBar);controls.append(filters,toolbar);dock.append(navigation,panel,controls);root.append(viewport,dock);
+ let floor,world,overviewBounds,areas=[],selectedArea,part=0,route,pz,fitScale=1,focused=!!state.selected,disposed=false,frame,resizeFrame;
  state.family=state.family||'all';state.plan=state.plan||'main';state.query='';
  if(!referenceEnabled&&state.source==='reference')state.source='';
  if(!state.source||state.source!=='reference'&&!data.floors.some(f=>f.id===state.source))state.source=referenceEnabled?'reference':data.floors[0]?.id;
@@ -42,6 +45,7 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
  }
  function fitWorld(){if(world)fit(isDiagram()?overviewBounds:{x:0,y:0,...world});}
  function focusArea(){const boxes=selectedArea?boundsFor(selectedArea):[];if(boxes.length){focused=true;fit(boxes[part%boxes.length]);}}
+ function focusRoute(){if(!route)return;focused=false;fit(routeBounds(route.points.map(p=>layoutRoutePoint(p,world.referenceLayout.scaleY)),85));}
  function zoom(factor){if(pz)pz.zoomTo(svg.clientWidth/2,svg.clientHeight/2,factor);}
  function updateHighlight(){
   for(const g of scene.querySelectorAll('.mall-zone')){
@@ -52,7 +56,7 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
  function selectArea(a,index=0){
   if(isDiagram()&&a.family){state.family=a.family;updateFilters();}
   if(isDiagram()&&!a.boxes.some(b=>b.plan===state.plan)&&a.boxes.length){state.plan=a.boxes[0].plan;state.selected=a.id;part=index;load();return;}
-  selectedArea=a;state.selected=a.id;part=index;updateHighlight();updateResults();
+  selectedArea=a;state.selected=a.id;part=index;focused=false;updateHighlight();updateResults();fitWorld();
  }
  function updateFilters(){
   filters.replaceChildren();const choices=isDiagram()?mapFamilies:[{id:'all',title:'全部区域',color:'#445d86'}];
@@ -63,14 +67,15 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
   }
  }
  function updateResults(){
-  results.replaceChildren();intro.replaceChildren();panel.classList.toggle('has-selection',!!selectedArea);panel.hidden=isDiagram()&&!selectedArea&&state.family==='all';
+  updateNavigation();
+  results.replaceChildren();intro.replaceChildren();panel.classList.toggle('has-selection',!!selectedArea);panel.hidden=isDiagram()&&((!selectedArea&&state.family==='all')||!!route);
   if(panel.hidden)return;
   if(selectedArea){
    const mark=el('div','','map-selection-icon');mark.append(glyph(selectedArea.id));intro.append(mark,label(selectedArea.title));
    if(isDiagram()){
     const boxes=boundsFor(selectedArea),actions=el('div','','mall-detail-actions');
     intro.append(el('p',boxes.length?`${boxes.length>1?'共 '+boxes.length+' 处':'已高亮'}`:'位置待确认，请咨询现场工作人员'));
-    if(boxes.length){actions.append(button('放大查看','',focusArea,'mall-button is-primary','pin'));if(boxes.length>1)actions.append(button(`下一处 ${part+1}/${boxes.length}`,'',()=>{part=(part+1)%boxes.length;focusArea();updateResults();},'mall-button','arrow'));results.append(actions);}
+    if(boxes.length){if(route)actions.append(button('查看路线','',focusRoute,'mall-button is-primary','pin'));else actions.append(button('放大查看','',focusArea,'mall-button is-primary','pin'));if(boxes.length>1)actions.append(button(`下一处 ${part+1}/${boxes.length}`,'',()=>{part=(part+1)%boxes.length;focused=false;updateResults();fitWorld();},'mall-button','arrow'));results.append(actions);}
    }else{
     const shops=associated(selectedArea);intro.append(el('p',selectedArea.description||'管理处已发布的市场区域'));
     for(const s of shops)results.append(button(s.name+(s.code?' · '+s.code:''),'查看商户介绍',()=>onMerchant(s.id),'mall-result'));
@@ -86,6 +91,25 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
   }
   if(!matches.length)results.append(el('p','管理处发布布局后将在这里展示','mall-help'));
  }
+ function updateNavigation(){
+  const main=isDiagram()&&state.plan==='main';
+  route=main&&selectedArea?findReferenceRoute({areaId:selectedArea.id,part}):null;
+  drawNavigation(scene,{route,scaleY:world?.referenceLayout?.scaleY||1,showOrigin:main&&!!world});
+  navigation.hidden=!isDiagram();navigation.classList.toggle('is-routing',!!route);navigation.replaceChildren();
+  if(navigation.hidden)return;
+  const icon=el('span','','mall-navigation-icon');icon.append(glyph(route?'arrow':'pin'));
+  const copy=el('div','','mall-navigation-copy');
+  const title=el('strong',route?`市场入口 → ${selectedArea.title}`:main?'您在这里 · 市场入口':'西侧附区');
+  const count=selectedArea?boundsFor(selectedArea).length:0;
+  const detail=route?`沿绿色路线前往${count>1?` · 第 ${part+1} / ${count} 处`:''} · 终点在区域通道侧`:main?(selectedArea?'该位置暂无可用路线，请咨询现场工作人员':'点击想去的区域，为您规划步行路线'):'大屏位于主市场入口，跨区路线请咨询现场工作人员';
+  copy.append(title,el('span',detail));navigation.append(icon,copy);
+  if(selectedArea){
+   const actions=el('div','','mall-navigation-actions');
+   if(route){actions.append(button('查看路线','',focusRoute,'mall-button is-primary','pin'));if(count>1)actions.append(button(`下一处 ${part+1}/${count}`,'',()=>{part=(part+1)%count;focused=false;updateResults();fitWorld();},'mall-button','arrow'));}
+   const clear=button('清除路线','',()=>{state.selected='';selectedArea=null;state.family='all';part=0;focused=false;updateFilters();updateHighlight();updateResults();fitWorld();},'mall-route-clear');actions.append(clear);navigation.append(actions);
+  }
+  else if(main)navigation.append(el('span','轻触目的地','mall-navigation-hint'));
+ }
  function changeSource(value){
   if(value.startsWith('reference:')){state.source='reference';state.plan=value.slice(10);}else state.source=value.slice(10);
   state.selected='';state.family='all';part=0;focused=false;load();
@@ -96,14 +120,14 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
   if(referenceEnabled){option('reference:main','主市场');option('reference:annex','西侧附区');}
   data.floors.forEach(f=>option('published:'+f.id,f.name));
  }
- function prepareReference(){const layout=layoutReference({areas:referenceAreas,plan:state.plan,width:svg.clientWidth,height:svg.clientHeight});world=layout.world;areas=layout.areas;overviewBounds=layout.overviewBounds;}
+ function prepareReference(){const layout=layoutReference({areas:referenceAreas,plan:state.plan,width:svg.clientWidth,height:svg.clientHeight});world=layout.world;areas=layout.areas;overviewBounds=layout.overviewBounds;if(state.plan==='main')overviewBounds={...overviewBounds,height:overviewBounds.height+42};}
  function load(){
   pz?.dispose();pz=null;floor=data.floors.find(f=>f.id===state.source);if(isDiagram())prepareReference();else{world=floor;areas=publishedAreas(floor,data.stalls);}
   buildSources();updateFilters();
   if(!world){panel.hidden=false;scene.replaceChildren();intro.replaceChildren(label('地图资料待发布'));results.replaceChildren();zoomBar.hidden=true;note.textContent='管理处发布布局后将在这里展示';return;}
   zoomBar.hidden=false;selectedArea=areas.find(a=>a.id===state.selected);drawScene(scene,{areas,plan:state.plan,world,published:!isDiagram(),onSelect:selectArea});
   level.textContent=isDiagram()?'1F':'图';headingCopy.querySelector('h1').textContent='蛇口市场 · '+(isDiagram()?(state.plan==='annex'?'西侧附区':'主市场'):floor.name);
-  note.textContent=isDiagram()?'本地参考导览 · 非实时位置':'已发布导览';note.title=isDiagram()?'按参考图简化绘制，非等比例，以现场标识为准':'商户资料以管理处最新明确发布内容为准';
+  note.textContent=isDiagram()?'入口定位 · 步行导览':'已发布导览';note.title=isDiagram()?'大屏固定在主市场图示下方第4个入口。示意路线以现场通道与标识为准':'商户资料以管理处最新明确发布内容为准';
   fitScale=Math.min((svg.clientWidth-36)/world.width,(svg.clientHeight-36)/world.height);
   pz=panzoom(scene,{bounds:true,boundsPadding:.15,minZoom:Math.max(.05,fitScale*.65),maxZoom:Math.max(.2,fitScale*5),smoothScroll:false,zoomDoubleClickSpeed:1,zoomSpeed:.12,pinchSpeed:1});
   pz.on('transform',()=>{const scale=pz?.getTransform().scale||fitScale;svg.classList.toggle('is-zoomed',scale>fitScale*1.45);plus.disabled=scale>=fitScale*4.99;minus.disabled=scale<=fitScale*.66;});
@@ -117,6 +141,6 @@ export function createMarketMap({data,state,onMerchant,referenceEnabled=true}){
  svg.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);tap=null;});
  svg.addEventListener('pointerleave',()=>{pointers.clear();tap=null;});
  svg.addEventListener('keydown',e=>{if(e.key==='Home'){e.preventDefault();focused=false;fitWorld();}});
- const resize=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(disposed||!world||!pz)return;if(isDiagram()){prepareReference();selectedArea=areas.find(a=>a.id===state.selected);drawScene(scene,{areas,plan:state.plan,world,published:false,onSelect:selectArea});updateHighlight();}fitScale=Math.min((svg.clientWidth-36)/world.width,(svg.clientHeight-36)/world.height);pz.setMinZoom(Math.max(.05,fitScale*.65));pz.setMaxZoom(Math.max(.2,fitScale*5));if(selectedArea&&focused)focusArea();else fitWorld();});});resize.observe(viewport);resize.observe(svg);
+ const resize=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(disposed||!world||!pz)return;if(isDiagram()){prepareReference();selectedArea=areas.find(a=>a.id===state.selected);drawScene(scene,{areas,plan:state.plan,world,published:false,onSelect:selectArea});updateHighlight();updateNavigation();}fitScale=Math.min((svg.clientWidth-36)/world.width,(svg.clientHeight-36)/world.height);pz.setMinZoom(Math.max(.05,fitScale*.65));pz.setMaxZoom(Math.max(.2,fitScale*5));if(selectedArea&&focused)focusArea();else fitWorld();});});resize.observe(viewport);resize.observe(svg);
  frame=requestAnimationFrame(()=>{if(!disposed)load();});return {element:root,destroy(){disposed=true;pz?.dispose();resize.disconnect();cancelAnimationFrame(frame);cancelAnimationFrame(resizeFrame);}};
 }

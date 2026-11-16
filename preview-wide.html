@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>蛇口市场 · 最新横屏预览</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#e6e3dc;color:#514c40;font-family:'Microsoft YaHei',sans-serif;height:100dvh;display:flex;flex-direction:column}
+    header{padding:10px 16px;text-align:center;font-size:13px;flex:none}
+    main{flex:1;min-height:0;display:grid;place-items:center;padding:12px}
+    .screen{position:relative;overflow:hidden;box-shadow:0 8px 36px #29251d26;background:#faf7f0}
+    iframe{position:absolute;top:0;left:0;width:1920px;height:1080px;border:0;transform-origin:top left}
+  </style>
+</head>
+<body>
+  <header>蛇口市场 · 最新 16:9 横屏预览</header>
+  <main><div class="screen"><iframe src="./?preview=design" title="最新市场大屏"></iframe></div></main>
+  <script type="module">
+    const area=document.querySelector('main'),screen=document.querySelector('.screen'),frame=document.querySelector('iframe');
+    const view=new URLSearchParams(location.search).get('view');
+    if(view)frame.src='./?preview=design&view='+encodeURIComponent(view);
+    function fit(){
+      const scale=Math.min((area.clientWidth-24)/1920,(area.clientHeight-24)/1080);
+      screen.style.width=`${1920*scale}px`;
+      screen.style.height=`${1080*scale}px`;
+      frame.style.transform=`scale(${scale})`;
+    }
+    new ResizeObserver(fit).observe(area);fit();
+  </script>
+</body>
+</html>

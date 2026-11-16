@@ -54,3 +54,31 @@ body.map-view .mall-chip{background:#fbfcff;border-color:#e0e6f0}
 body.map-view .mall-chip[aria-pressed=true]{background:color-mix(in srgb,var(--category) 10%,#fff);border-color:var(--category);box-shadow:inset 0 -2px 0 var(--category)}
 body.map-view .mall-result{background:#f7f9fd;border-color:#e0e6f0}
 body.map-view .mall-panel{background:#fff;border:0;border-bottom:1px solid #eef1f6}
+
+/* Fixed entrance and walking directions. Routes share the map transform. */
+.map-route-halo,.map-route-line,.map-route-flow{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.map-route-halo{stroke:#fff;stroke-width:15;filter:drop-shadow(0 2px 3px #064e3b35)}
+.map-route-line{stroke:#0a8d73;stroke-width:8}
+.map-route-flow{stroke:#b9f9df;stroke-width:2;stroke-dasharray:2 22;animation:map-route-flow 2s linear infinite}
+.map-route-chevron{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.map-destination-outline{fill:none;stroke:#087c64;stroke-width:3;stroke-dasharray:7 5}
+.map-arrival-halo{fill:#fff;stroke:#0a8d73;stroke-width:2}.map-arrival{fill:#0a8d73}
+.map-arrival-label{fill:#065e4b;font:700 16px 'Microsoft YaHei',sans-serif;paint-order:stroke;stroke:#fff;stroke-width:5;stroke-linejoin:round}
+.map-location-aura{fill:#0a8d731a;stroke:#0a8d7322;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:map-location-breathe 2.8s ease-in-out infinite}
+.map-location-ring{fill:#fff;stroke:#0a8d73;stroke-width:3;filter:drop-shadow(0 2px 4px #064e3b30)}
+.map-location-dot{fill:#0a8d73}.map-location-direction{fill:#fff}.map-location-label-bg{fill:#087c64;filter:drop-shadow(0 3px 4px #064e3b22)}
+.map-location-label{fill:#fff;font:700 22px 'Microsoft YaHei',sans-serif;letter-spacing:2px}
+.map-location-subtitle{fill:#c9f5e7;font:500 10px 'Microsoft YaHei',sans-serif;letter-spacing:.5px}
+.mall-navigation-card{display:flex;align-items:center;gap:13px;padding:12px 16px;border:1px solid #dcece5;border-radius:15px;background:linear-gradient(110deg,#eff9f3,#f8fcfa 72%);color:#19654f}
+.mall-navigation-card[hidden]{display:none}.mall-navigation-card.is-routing{background:linear-gradient(110deg,#e7f6ee,#f7fcf9 72%);border-color:#b9ddcc}
+.mall-navigation-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;background:#fff;color:#087c64;box-shadow:0 2px 8px #0b765412}
+.mall-navigation-icon svg{width:25px;height:25px}.is-routing .mall-navigation-icon{background:#087c64;color:#fff}
+.mall-navigation-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}.mall-navigation-copy strong{font-size:1.05em;letter-spacing:.025em}.mall-navigation-copy>span{color:#6a8377;font-size:.79em;line-height:1.4}
+.mall-navigation-hint{font-size:.8em;letter-spacing:.06em;color:#5b8c75;border:1px solid #cde4d7;border-radius:99px;padding:7px 13px;white-space:nowrap}
+.mall-route-clear{border:1px solid #c6dfd2;background:#ffffffb3;color:#41735d;border-radius:10px;min-height:44px;padding:8px 16px;font:inherit;font-size:.85em;cursor:pointer;white-space:nowrap}
+.mall-route-clear:hover{background:#fff;border-color:#087c64}.mall-navigation-card+ .mall-panel[hidden]{display:none}
+.mall-navigation-actions{display:flex;gap:7px;align-items:center;flex-shrink:0}.mall-navigation-actions .is-primary{background:#087c64;border-color:#087c64}
+@keyframes map-route-flow{to{stroke-dashoffset:-48}}
+@keyframes map-location-breathe{50%{opacity:.55;transform:scale(1.14)}}
+@media(max-width:700px){.mall-navigation-card{padding:9px 10px;gap:9px;border-radius:12px;flex-wrap:wrap}.mall-navigation-icon{width:34px;height:34px;border-radius:10px}.mall-navigation-copy strong{font-size:12px}.mall-navigation-copy>span{font-size:10px}.mall-navigation-hint{display:none}.mall-route-clear{padding:6px 10px;font-size:11px}.mall-navigation-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.map-route-flow,.map-location-aura{animation:none}}

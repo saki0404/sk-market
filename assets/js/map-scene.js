@@ -24,8 +24,7 @@ export function drawScene(root,{areas,plan,world,published=false,onSelect}){
  root.append(svgNode('rect',{...floor,rx:18,class:'mall-floor'}));
  if(!published){
   if(main){
-   // These paths follow the open gaps in the reference plan. They distinguish
-   // circulation space; they are not suggested routes or a guessed start point.
+   // Aisle background; the fixed-kiosk route is rendered separately above it.
    const aisle=reference.mainAisle;
    root.append(svgNode('path',{d:`M${aisle.left} ${aisle.y}H${aisle.right}`,class:'map-main-aisle',style:`stroke-width:${aisle.width}`,'pointer-events':'none'}));
    root.append(svgNode('path',{d:reference.secondaryAisles.map(a=>`M${a.x} ${a.top}V${a.bottom}`).join(''),class:'map-secondary-aisle','pointer-events':'none'}));
@@ -34,7 +33,7 @@ export function drawScene(root,{areas,plan,world,published=false,onSelect}){
     root.append(svgNode('path',{d:`M${x-17} ${doorY}h34`,class:'map-entry-door'}));
     root.append(svgNode('path',{d:`M${x} ${arrowY+8}v-16m-5 5 5-5 5 5`,class:'mall-entry-arrow'}));
    }
-   textAt(root,reference.entranceCaption.x,reference.entranceCaption.y,'市 场 入 口',19,'mall-entry-text');
+   textAt(root,490,reference.entranceCaption.y,'市 场 入 口',19,'mall-entry-text');
    for(const {x,y}of reference.sideEntrances)root.append(svgNode('path',{d:`M${x} ${y}h21m-6-6 6 6-6 6`,class:'mall-entry-arrow'}));
   }else{
    for(const b of reference.services){
