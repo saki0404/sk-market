@@ -462,41 +462,37 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .enter-btn:hover{transform:translateY(-4px);box-shadow:0 18px 38px -12px rgba(44,44,36,.3)}
 .enter-btn:active{transform:scale(.97)}
 .enter-btn:focus-visible{outline:3px solid rgba(93,112,82,.4);outline-offset:3px}
-/* 菜单页：四键横向一行排列，正方形按键（上文字、下图标），间距舒适 */
+/* 菜单页：四键横向一行排列，正方形按键（上文字、下图标），间距舒适
+   2026-11-17：整行铺开、四键从左到右等距（等宽等间距），按键加大，文字图标字号不变 */
 .menu-stage{flex-direction:column;align-items:center}
-.menu-actions{grid-template-columns:repeat(4,29vh);gap:3.4vw;width:auto;margin:auto 0}
+.menu-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:3.2vw;width:min(94vw,1800px);margin:auto 0;justify-content:center}
 /* 菜单页底部操作行：左"首页"右"返回"，与次级页同款浮动胶囊键 */
 .menu-footer{align-self:stretch;flex-shrink:0;margin-top:0;padding:0 3vw 2.2vh}
 /* 图鉴页标题药丸：更靠左、字号收紧 (2026-10-30) */
 .knowledge-view .section-heading{margin-left:-1vw;min-width:0;padding:.9vh 1.4vw}
 .knowledge-view .section-heading h2{font-size:2.2vw}
 .menu-actions .wayfinding{
- aspect-ratio:1;min-height:0;height:auto;padding:2.6vh 1vw;gap:1.8vh;border-radius:1.6rem;
+ aspect-ratio:1;min-height:0;height:auto;padding:2.6vh 1vw;gap:0;justify-content:flex-start;border-radius:1.6rem;
  background:rgba(253,252,248,.55);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);
- border:1px solid rgba(255,255,255,.62);box-shadow:0 8px 26px -12px rgba(44,44,36,.2);
+ border:1px solid rgba(255,255,255,.62); box-shadow:0 16px 40px -10px rgba(224,187,108,.5),0 4px 16px -6px rgba(224,187,108,.35); /* 触摸屏：进页即见的淡黄边缘光晕，提示可点击 */
 }
-.menu-actions .wayfinding .action-title{font-size:clamp(20px,1.7vw,34px)}
-.menu-actions .wayfinding .way-art{height:12vh;max-width:12vh}
+.menu-actions .wayfinding .action-title{font-size:clamp(22px,1.95vw,39px)}/* 2026-11-18 文字与英文稍加大 */
+/* 2026-11-18 图标放大（12vh→17vh），并用 margin:auto 使其居中在"英文之下、底边之上"的区域 */
+.menu-actions .wayfinding .action-copy{flex:0 0 auto}
+.menu-actions .wayfinding .way-art{height:17vh;max-width:17vh;margin:auto 0}
+/* 触摸屏反馈（2026-11-18 重写）：悬停不触发；点击瞬间整个按键内部短暂变淡黄后淡出 */
+.menu-actions .wayfinding:hover{transform:none}
+.menu-actions .wayfinding:active{
+ background:rgba(224,187,108,.32);
+ box-shadow:0 18px 46px -10px rgba(224,187,108,.62),0 6px 20px -6px rgba(224,187,108,.45);
+}
 /* 找商户分类条：图标与文字缩小，恰好容于条内 (2026-10-30) */
 .shops-view .local-cat-bar{height:12vh;padding:.5vh .8vw}
 .shops-view .local-cat-bar .category-item{font-size:clamp(14px,1.15vw,24px);gap:.25vh;padding:.4vh .7vw}
 .shops-view .local-cat-bar .category-item .icon,.shops-view .local-cat-bar .category-item .art-icon{width:5.5vh;height:5.5vh;margin:0}
-.menu-actions .wayfinding .arrow{right:1.1vw;top:1.1vh;width:1.7vw;height:1.7vw}
-/* 菜单页背景：12 个食材/海鲜透明素材散落（层级：汉白玉底之上、按键之下，2026-10-30 用户提供） */
-.menu-stage{position:relative}
-.menu-stage::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:
- url('../images/menu-art/baopi-fish.png') no-repeat 5vw 2.5vh / 9vw auto,
- url('../images/menu-art/grass-carp.png') no-repeat 27vw 4vh / 8.5vw auto,
- url('../images/menu-art/bigeye-fish.png') no-repeat 50vw 2vh / 6vw auto,
- url('../images/menu-art/coral-trout.png') no-repeat 73vw 4.5vh / 7.5vw auto,
- url('../images/menu-art/red-shrimp.png') no-repeat 89vw 2vh / 6vw auto,
- url('../images/menu-art/red-pepper.png') no-repeat 1.5vw 31vh / 4.5vw auto,
- url('../images/menu-art/baby-cabbage.png') no-repeat 92vw 29vh / 4.5vw auto,
- url('../images/menu-art/sea-snail.png') no-repeat 4vw 62vh / 6vw auto,
- url('../images/menu-art/white-radish.png') no-repeat 17vw 60vh / 4.5vw auto,
- url('../images/menu-art/enoki.png') no-repeat 44vw 64vh / 5vw auto,
- url('../images/menu-art/carrot.png') no-repeat 62vw 61vh / 4.8vw auto,
- url('../images/menu-art/strawberry.png') no-repeat 85vw 63vh / 5vw auto}
+/* 菜单页四键：删右上角金色箭头（2026-11-17 用户要求） */
+.menu-actions .wayfinding .arrow{display:none}
+/* 菜单页背景：食材/海鲜贴纸已删除（2026-11-17 用户要求，汉白玉底之上、按钮之下的贴纸全部移除） */
 .menu-actions,.menu-footer{position:relative;z-index:1}
 /* 消费反馈主页：透明底爱心词云居中放中间空白区（2026-10-30 用户提供，居顶条与底条之间） */
 .feedback-cloud{position:absolute;top:2vh;bottom:13vh;left:0;right:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
