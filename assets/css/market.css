@@ -531,13 +531,15 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .knowledge-view .know-cat-bar .category-item{padding:.8vh 1.1vw}
 .seafood-detail-view .sf-detail{display:grid;grid-template-columns:minmax(0,26%) minmax(0,1fr);gap:1.4vw;align-items:start;width:min(100%,76vw);margin:0 auto;background:rgba(255,255,255,.72);border:1px solid #DED8CF80;border-radius:1.6rem;padding:1.2vh 1.6vw;box-shadow:0 4px 20px -2px rgba(93,112,82,.1)}
 .seafood-detail-view .sf-detail-photo{margin:0;display:flex;align-items:center;justify-content:center}
-.seafood-detail-view .sf-detail-photo img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:1.25rem;display:block}
+/* 2026-11-18 用户要求：海鲜图片与顶部标题对齐靠左（信息区位置不动），图片移出卡片左缘独立成块 */
+.seafood-detail-view .sf-detail-photo{position:relative;left:-8.99vw}
+.seafood-detail-view .sf-detail-photo img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:1.25rem;display:block;background:#fff;border:1px solid #DED8CF80;box-shadow:0 4px 20px -2px rgba(93,112,82,.12)}
 .seafood-detail-view .sf-detail-photo .seafood-photo{width:100%;height:auto;aspect-ratio:1;object-fit:cover}
 .seafood-detail-view .sf-detail-photo .photo-empty.seafood-photo{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--stone)}
 .seafood-detail-view .sf-detail-info{min-width:0;display:flex;flex-direction:column;gap:.2vh}
-.seafood-detail-view .sf-detail-info h4{margin:.7vh 0 0;color:var(--muted);font-size:clamp(12px,.75vw,17px);letter-spacing:.05em;font-family:var(--font-zh-serif)}
+.seafood-detail-view .sf-detail-info h4{margin:.7vh 0 0;color:var(--muted);font-size:clamp(15px,1.05vw,23px);letter-spacing:.05em;font-family:var(--font-zh-serif)}
 .seafood-detail-view .sf-detail-info h4:first-child{margin-top:0}
-.seafood-detail-view .sf-detail-info p{margin:0;font-size:clamp(13px,.85vw,19px);line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
+.seafood-detail-view .sf-detail-info p{margin:0;font-size:clamp(16px,1.15vw,26px);line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
 .seafood-detail-view .sf-detail-info p .bi .en{font-size:.7em;opacity:1;margin-top:.15em;line-height:1.32;color:var(--ink);overflow-wrap:anywhere}
 .seafood-detail-view .sf-detail-info p .bi{line-height:1.35}
 
