@@ -490,6 +490,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .shops-view .local-cat-bar{height:12vh;padding:.5vh .8vw}
 .shops-view .local-cat-bar .category-item{font-size:clamp(14px,1.15vw,24px);gap:.25vh;padding:.4vh .7vw}
 .shops-view .local-cat-bar .category-item .icon,.shops-view .local-cat-bar .category-item .art-icon{width:5.5vh;height:5.5vh;margin:0}
+/* 2026-11-18 分类按键文字与英文和图标一样左右居中 */
+.shops-view .local-cat-bar .category-item .bi{align-items:center;text-align:center;line-height:1.15}
+.shops-view .local-cat-bar .category-item .bi .en{margin-top:.2em}
 /* 菜单页四键：删右上角金色箭头（2026-11-17 用户要求） */
 .menu-actions .wayfinding .arrow{display:none}
 /* 菜单页背景：食材/海鲜贴纸已删除（2026-11-17 用户要求，汉白玉底之上、按钮之下的贴纸全部移除） */

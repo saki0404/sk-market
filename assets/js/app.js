@@ -4,7 +4,7 @@ import {spotlightGroups,currentMerchant,nextMerchant} from './spotlight.js';
 import {createMarketClient} from './market-data.js';
 const iconFiles=import.meta.glob('../icons/*.svg',{eager:true,query:'?url',import:'default'});
 const artFiles=import.meta.glob('../images/icon-*.png',{eager:true,query:'?url',import:'default'});
-const artNames={storefront:'shop','map-trifold':'map',fish:'seafood',leaf:'vegetables',egg:'meat',grains:'grain','cooking-pot':'condiments',guide:'guide','arrow-left':'arrow-warm','arrow-right':'arrow-warm',house:'home-warm'};
+const artNames={storefront:'shop','map-trifold':'map',fish:'seafood',leaf:'vegetables',egg:'meat',grains:'grain','cooking-pot':'condiments',guide:'guide','arrow-left':'arrow-warm','arrow-right':'arrow-warm',house:'home-warm',chilled:'chilled',shell:'shell',shopfront:'shopfront'};
 const $=id=>document.getElementById(id);
 const el=(tag,value='',className='')=>{const node=document.createElement(tag);node.textContent=value;node.className=className;return node;};
 const bi=(zh,en,cls='')=>{const node=el('span','','bi'+(cls?' '+cls:''));node.append(el('span',zh));if(en)node.append(el('span',en,'en'));return node;};
@@ -58,7 +58,7 @@ async function rotateSpotlight(){
  }finally{rotating=false;scheduleRotation();}
 }
 document.addEventListener('visibilitychange',scheduleRotation);
-function categoryIcon(c){const name=c.name;if(/水产|海鲜|冰鲜|贝壳/.test(name))return 'fish';if(/蔬|果/.test(name))return 'leaf';if(/肉|禽|蛋/.test(name))return 'egg';if(/粮|油|干货/.test(name))return 'grains';if(/副食|调料|熟食/.test(name))return 'cooking-pot';return 'storefront';}
+function categoryIcon(c){const name=c.name;if(name==='冰鲜')return 'chilled';if(name==='贝壳')return 'shell';if(name==='门店')return 'shopfront';if(/水产|海鲜|冰鲜|贝壳/.test(name))return 'fish';if(/蔬|果/.test(name))return 'leaf';if(/肉|禽|蛋/.test(name))return 'egg';if(/粮|油|干货/.test(name))return 'grains';if(/副食|调料|熟食/.test(name))return 'cooking-pot';return 'storefront';}
 function photo(asset,name){if(!asset?.localUrl){const p=el('div','','photo-empty');p.append(icon('storefront'),bi('暂无门店照片','No photo yet'));return p;}const img=el('img','','shop-photo');img.src=asset.localUrl;img.alt=name+'门店照片';img.addEventListener('error',()=>img.replaceWith(photo(null,name)),{once:true});return img;}
 function navigate(next,options={}){if(next==='detail'&&view!=='detail')detailReturn=view==='home'?'home':view==='map'?'map':'shops';if(next!==view){if(view==='home'||next==='home')fromView='home';else if(view==='menu')fromView='menu';}view=next;if(options.category!==undefined){category=options.category;query='';}if(options.selected!==undefined)selected=options.selected;if(options.floor!==undefined){floor=options.floor;zone='';}if(options.zone!==undefined)zone=options.zone;lastAction=Date.now();render();$('main').focus({preventScroll:true});}
 function renderBar(){const bar=$('categoryBar');bar.replaceChildren();if(!data.categories.length){bar.append(bi('商户分类将在资料发布后显示','Categories will appear once published','category-placeholder'));return;}for(const c of data.categories){const b=button(c.nameEn?bi(c.name,c.nameEn):c.name,()=>navigate('shops',{category:c.id}),'category-item'+(view==='shops'&&category===c.id?' selected':''),categoryIcon(c));b.setAttribute('aria-pressed',String(view==='shops'&&category===c.id));bar.append(b);}}
